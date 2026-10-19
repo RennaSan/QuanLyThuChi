@@ -20,11 +20,14 @@
           <h1 class="text-base sm:text-xl font-bold tracking-tight truncate">Quản lý thu chi</h1>
         </div>
         <div class="navbar-end gap-1.5 sm:gap-2">
-          <button type="button" id="btn-add-transaction" class="btn btn-primary btn-sm px-2.5 sm:px-3" aria-label="Thêm giao dịch">
-            <span>Thêm</span><span class="hidden sm:inline">&nbsp;giao dịch</span>
+          <button type="button" id="btn-add-transaction" class="btn btn-primary btn-sm px-2.5 sm:px-3"
+            aria-label="Thêm giao dịch">
+            <span class="sm:hidden">Thêm</span>
+            <span class="hidden sm:inline">Thêm giao dịch</span>
           </button>
           <div id="backup-actions" class="flex items-center gap-1.5 sm:gap-2">
-            <input type="file" id="input-import-file" accept=".json,application/json" class="hidden" aria-label="Chọn file JSON để nhập dữ liệu" />
+            <input type="file" id="input-import-file" accept=".json,application/json" class="hidden"
+              aria-label="Chọn file JSON để nhập dữ liệu" />
             <button type="button" id="btn-import-data" class="btn btn-outline btn-sm px-2 sm:px-3 gap-1"
               title="Nhập dữ liệu" aria-label="Nhập dữ liệu">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"

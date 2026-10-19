@@ -11,8 +11,7 @@
 ## 1. Bảng Xếp Hạng Vấn Đề Theo Mức Tác Động (Cao / Trung bình / Thấp)
 
 | STT | Mức tác động | Trạng thái | Vấn đề UX / UI | Kích thước phát hiện | Cách sửa cụ thể (thực hiện ở Phiên 12) | File liên quan |
-| :---: | :---: | :---: | :--- | :---: | :--- | :--- |
-| **01** | **Cao** | **[x] Đã sửa** | **Tràn ngang toàn trang (Horizontal Overflow 441px/375px)** do hàng nút trên Navbar không co giãn/xuống dòng, nút "Xuất dữ liệu" bị cắt mất 66px ra ngoài màn hình. | **375px** (Mobile) | Tại `navbar-end` trên mobile: thu nhỏ padding `px-2`, gom 2 nút Nhập/Xuất thành icon button có tooltip/aria-label; chỉ hiển thị chữ đầy đủ từ breakpoint `sm:`. | `index.html` |
+| **01** | **Cao** | **[x] Đã sửa** | **Tràn ngang toàn trang (Horizontal Overflow 441px/375px)** do hàng nút trên Navbar không co giãn/xuống dòng, nút "Xuất dữ liệu" bị cắt mất 66px ra ngoài màn hình; kèm lỗi **khoảng cách chữ không đều** trên nút "Thêm giao dịch" do flex gap. | **375px** (Mobile) | Tại `navbar-end` trên mobile: thu nhỏ padding `px-2`, gom 2 nút Nhập/Xuất thành icon button có tooltip/aria-label; nút "Thêm giao dịch" dùng 2 thẻ span riêng biệt (`<span class="sm:hidden">Thêm</span>` và `<span class="hidden sm:inline">Thêm giao dịch</span>`) giúp triệt tiêu hoàn toàn tràn ngang và đảm bảo khoảng cách chữ đều tuyệt đối theo chuẩn font. | `index.html` |
 | **02** | **Cao** | **[x] Đã sửa** | **Modal "Thêm giao dịch" bị tràn màn hình và cắt cụt chữ mép trái** ("hêm", "oại", "ố tiền", "anh mục", "gày", "hi chú") do `modal-box` rộng 421px so với 375px. | **375px** (Mobile) | Thay class `modal-box max-w-md w-full p-6` bằng `modal-box w-11/12 max-w-md p-4 sm:p-6 mx-auto`; thêm `modal-bottom sm:modal-middle` để mobile hiển thị dạng bottom sheet chuẩn tiện dụng ngón tay cái. | `js/views/transactionFormView.js` |
 | **03** | **Cao** | **[x] Đã sửa** | **Vùng chạm (Touch Target) của nút Sửa/Xóa trên Mobile quá nhỏ (37px × 24px, chuẩn ≥ 44px)** và đặt sát nhau (gap 6px), nguy cơ bấm nhầm rất cao. | **375px**, **768px** (Mobile & Tablet) | Tăng kích thước nút lên `btn-md` (40px × 58px) trên mobile và `btn-sm` (32px × 46px) trên tablet/desktop, giãn cách `gap-2 sm:gap-3` để chống bấm nhầm. | `js/views/transactionListView.js` |
 | **04** | **Cao** | **[x] Đã sửa** | **Độ tương phản màu số tiền Thu (`text-success`), Chi (`text-error`) không đạt chuẩn WCAG AA** (chỉ đạt 1.88:1 và 2.4:1 trên nền trắng, chuẩn yêu cầu ≥ 4.5:1). | **375px**, **768px**, **1440px** (Toàn bộ) | Thay `text-success` bằng màu xanh lục đậm `text-emerald-700` (tương phản > 4.5:1); thay `text-error` bằng `text-rose-700`. | `js/views/summaryView.js`, `js/views/transactionListView.js`, `index.html` |
@@ -39,6 +38,10 @@
     * `#btn-import-data`: rộng 117px.
     * `#btn-export-data`: rộng 112px, tọa độ `left: 329px, right: 441px`.
   - Hậu quả: Nút "Xuất dữ liệu" bị cắt mất quá nửa ngoài mép phải màn hình; tiêu đề "Quản lý thu chi" bị ép sát vào nút thêm. Người dùng vô tình vuốt ngang sẽ thấy toàn bộ trang bị lắc lư sang phải, để lộ khoảng trắng nền.
+- **Khoảng cách chữ không đều trên nút "Thêm giao dịch"**:
+  - Ban đầu nút `#btn-add-transaction` chứa cấu trúc ghép nối: `<span>Thêm</span><span class="hidden sm:inline">&nbsp;giao dịch</span>`.
+  - Class `.btn` của DaisyUI kích hoạt flexbox với thuộc tính `gap: 6px`. Khi hiển thị trên màn hình lớn (`sm:` trở lên), flex container chèn thêm khoảng cách 6px giữa 2 thẻ `span`, kết hợp ký tự khoảng trắng `&nbsp;` tạo ra khoảng hở giữa chữ "Thêm" và "giao" (~9.5px) lớn gấp 3 lần khoảng hở tự nhiên giữa "giao" và "dịch" (~3.5px).
+  - Khắc phục: Phân tách rõ ràng thành 2 span độc lập theo breakpoint: `<span class="sm:hidden">Thêm</span>` (cho mobile) và `<span class="hidden sm:inline">Thêm giao dịch</span>` (cho tablet/desktop). Mỗi kích thước chỉ hiển thị duy nhất 1 span trọn vẹn, triệt tiêu flex gap và phục hồi khoảng cách chữ tự nhiên, đồng đều.
 
 #### B. Thẻ Tổng quan (Summary Cards)
 - 3 thẻ hiển thị dạng cột xếp dọc (`grid-cols-1`).
@@ -155,8 +158,8 @@ Các ảnh chụp màn hình thực tế được ghi nhận trực tiếp từ 
 
 Để chuẩn bị cho phiên 12 thực hiện sửa mã một cách nhanh chóng, chuẩn xác và không phá vỡ logic nghiệp vụ hiện có:
 
-1. **Ưu tiên 1 (Xử lý vấn đề Cao) — [x] ĐÃ HOÀN THÀNH Ở PHIÊN 12**:
-   - [x] Đã sửa `index.html`: Cấu hình responsive cho `navbar-end` (`px-2 sm:px-4`, ẩn nhãn chữ trên mobile, chỉ hiện icon) -> triệt tiêu hoàn toàn lỗi tràn ngang tại 375px (scrollWidth = 375px, maxRight = 367px).
+1. **Ưu tiên 1 (Xử lý vấn đề Cao) — [x] ĐÃ HOÀN THÀNH Ở PHIÊN 12 & TINH CHỈNH PHIÊN 13**:
+   - [x] Đã sửa `index.html`: Cấu hình responsive cho `navbar-end` (`px-2 sm:px-4`, ẩn nhãn chữ trên mobile, chỉ hiện icon) -> triệt tiêu hoàn toàn lỗi tràn ngang tại 375px (scrollWidth = 375px, maxRight = 367px); chuẩn hóa nút "Thêm giao dịch" bằng cấu trúc `<span class="sm:hidden">Thêm</span>` và `<span class="hidden sm:inline">Thêm giao dịch</span>` -> loại bỏ hiện tượng khoảng cách chữ không đều do CSS flex gap của class `.btn`.
    - [x] Đã sửa `js/views/transactionFormView.js`: Áp dụng `w-11/12 max-w-md p-4 sm:p-6 mx-auto` và `modal-bottom sm:modal-middle` -> modal hiển thị trọn vẹn, không bị cắt lề trái, cân đối ở 375px.
    - [x] Đã sửa `js/views/transactionListView.js`: Tăng kích thước nút Sửa/Xóa lên `btn-md` (40px cao × 58px rộng) trên mobile và `btn-sm` (32px cao × 46px rộng) trên tablet/desktop, giãn cách `gap-2 sm:gap-3` -> đạt chuẩn vùng chạm ≥ 40px và ngăn bấm nhầm.
    - [x] Đã sửa màu sắc (`index.html`, `js/views/summaryView.js`, `js/views/transactionListView.js`): Thay `text-success`/`text-error` bằng `text-emerald-700`/`text-rose-700` -> độ tương phản vượt chuẩn WCAG AA (> 4.5:1).
@@ -169,3 +172,40 @@ Các ảnh chụp màn hình thực tế được ghi nhận trực tiếp từ 
    - Nâng cấp ngữ nghĩa `<fieldset>` cho nhóm radio.
    - Tăng kích thước nút đóng "✕" trên modal.
    - Bổ sung icon `+` cho nút Thêm giao dịch và cải thiện giao diện Empty State khi lọc.
+
+---
+
+## 5. Nhật Ký Chỉnh Sửa Thực Tế (Implementation Log)
+
+Bảng tổng hợp chi tiết các sửa đổi giao diện và mã nguồn đã hoàn thành:
+
+### 5.1. Nút "Thêm giao dịch" và Navbar (`index.html`)
+- **Vấn đề**:
+  1. Tràn ngang giao diện mobile 375px do hàng 3 nút cố định chiều rộng.
+  2. Khoảng cách chữ trong nút "Thêm giao dịch" bị lệch: khoảng cách giữa "Thêm" và "giao" lớn hơn khoảng cách giữa "giao" và "dịch".
+- **Nguyên nhân kỹ thuật**:
+  - Class `.btn` của DaisyUI sử dụng thuộc tính `display: inline-flex; gap: 0.5rem (6px)`.
+  - Cấu trúc trước đó là `<span>Thêm</span><span class="hidden sm:inline">&nbsp;giao dịch</span>`. Trên tablet/desktop (`≥ sm`), cả hai `<span>` đều hiển thị, khiến trình duyệt vừa áp dụng flex `gap` (6px) vừa cộng thêm ký tự khoảng trắng `&nbsp;` giữa 2 span, trong khi giữa "giao" và "dịch" chỉ là khoảng trắng văn bản thông thường (~3.5px).
+- **Giải pháp đã thực hiện**:
+  - Đổi cấu trúc HTML của nút thành hai thẻ `span` loại trừ nhau:
+    ```html
+    <button type="button" id="btn-add-transaction" class="btn btn-primary btn-sm px-2.5 sm:px-3" aria-label="Thêm giao dịch">
+      <span class="sm:hidden">Thêm</span>
+      <span class="hidden sm:inline">Thêm giao dịch</span>
+    </button>
+    ```
+  - Khi xem trên mobile (`< sm`): Chỉ hiển thị duy nhất `<span>Thêm</span>`. Nút ngắn gọn, không bị tràn màn hình.
+  - Khi xem trên tablet/desktop (`≥ sm`): Chỉ hiển thị duy nhất `<span>Thêm giao dịch</span>`. Toàn bộ cụm từ nằm trong một node văn bản duy nhất, khoảng cách giữa các từ được hiển thị hoàn toàn đồng đều và tự nhiên theo font chữ hệ thống mà không bị flex gap làm méo mó.
+
+### 5.2. Modal Thêm / Sửa Giao dịch (`js/views/transactionFormView.js`)
+- **Vấn đề**: Hộp thoại modal bị tràn lề trái màn hình 375px, cắt cụt chữ cái đầu.
+- **Giải pháp**: Thay class `modal-box max-w-md w-full p-6` bằng `modal-box w-11/12 max-w-md p-4 sm:p-6 mx-auto`, kết hợp `modal-bottom sm:modal-middle`. Modal co giãn cân đối ở chính giữa và hoạt động mượt mà như bottom-sheet trên thiết bị di động.
+
+### 5.3. Vùng Chạm Nút Thao tác (`js/views/transactionListView.js`)
+- **Vấn đề**: Hai nút Sửa/Xóa dạng `.btn-xs` (37px × 24px) quá nhỏ và sát nhau trên màn hình cảm ứng điện thoại.
+- **Giải pháp**: Tăng kích thước nút trên mobile thành `btn-md` (chiều cao 40px), nới rộng khoảng cách `gap-2 sm:gap-3` chống bấm nhầm, đảm bảo tiêu chuẩn Touch Target.
+
+### 5.4. Độ Tương Phản Màu Sắc Theo WCAG AA (`js/views/summaryView.js`, `js/views/transactionListView.js`, `index.html`)
+- **Vấn đề**: Màu mặc định `text-success` và `text-error` có tỷ lệ tương phản thấp (< 2.5:1), vi phạm tiêu chuẩn tiếp cận WCAG AA.
+- **Giải pháp**: Nâng cấp sang các mã màu có độ tương phản cao `text-emerald-700` (xanh lục đậm cho thu nhập) và `text-rose-700` (đỏ hồng đậm cho chi phí), đưa tỷ lệ tương phản vượt mức 4.5:1 trên nền trắng.
+

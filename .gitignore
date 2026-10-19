@@ -1,0 +1,13 @@
+# Editor & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# Dependencies & Build (nếu dùng sau này)
+node_modules/
+dist/
+
+# Gemini / IDE cache
+.gemini/

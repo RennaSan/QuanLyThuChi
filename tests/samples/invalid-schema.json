@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 2,
+  "transactions": [
+    {
+      "id": "sample-wrong-schema-01",
+      "type": "income",
+      "amount": 5000000,
+      "category": "Lương",
+      "date": "2026-10-01",
+      "note": "Lương tháng 10",
+      "createdAt": "2026-10-01T08:00:00.000Z",
+      "updatedAt": "2026-10-01T08:00:00.000Z"
+    }
+  ],
+  "exportedAt": "2026-10-19T10:00:00.000Z"
+}

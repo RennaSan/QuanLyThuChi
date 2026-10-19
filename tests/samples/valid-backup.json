@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "transactions": [
+    {
+      "id": "valid-sample-01",
+      "type": "income",
+      "amount": 15000000,
+      "category": "Lương",
+      "date": "2026-10-01",
+      "note": "Lương tháng 10",
+      "createdAt": "2026-10-01T08:00:00.000Z",
+      "updatedAt": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "valid-sample-02",
+      "type": "expense",
+      "amount": 250000,
+      "category": "Ăn uống",
+      "date": "2026-10-05",
+      "note": "Tiệc liên hoan",
+      "createdAt": "2026-10-05T12:00:00.000Z",
+      "updatedAt": "2026-10-05T12:00:00.000Z"
+    },
+    {
+      "id": "valid-sample-03",
+      "type": "expense",
+      "amount": 500000,
+      "category": "Di chuyển",
+      "date": "2026-10-10",
+      "note": "Bảo dưỡng xe máy",
+      "createdAt": "2026-10-10T09:30:00.000Z",
+      "updatedAt": "2026-10-10T09:30:00.000Z"
+    }
+  ],
+  "exportedAt": "2026-10-19T10:00:00.000Z"
+}

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý thu chi</title>
+  <!-- daisyUI CDN (v5) -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  <!-- Tailwind CSS CDN (v4) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="min-h-screen bg-base-200 text-base-content flex flex-col">
+  <!-- Thanh điều hướng chính -->
+  <header class="bg-base-100 shadow-sm sticky top-0 z-30">
+    <div class="container mx-auto max-w-5xl">
+      <nav class="navbar px-2 sm:px-4" aria-label="Thanh điều hướng chính">
+        <div class="navbar-start">
+          <h1 class="text-base sm:text-xl font-bold tracking-tight truncate">Quản lý thu chi</h1>
+        </div>
+        <div class="navbar-end gap-1.5 sm:gap-2">
+          <button type="button" id="btn-add-transaction" class="btn btn-primary btn-sm px-2.5 sm:px-3">
+            <span>Thêm</span><span class="hidden sm:inline">&nbsp;giao dịch</span>
+          </button>
+          <div id="backup-actions" class="flex items-center gap-1.5 sm:gap-2">
+            <input type="file" id="input-import-file" accept=".json,application/json" class="hidden" />
+            <button type="button" id="btn-import-data" class="btn btn-outline btn-sm px-2 sm:px-3 gap-1" title="Nhập dữ liệu" aria-label="Nhập dữ liệu">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12" />
+              </svg>
+              <span class="hidden sm:inline">Nhập dữ liệu</span>
+            </button>
+            <button type="button" id="btn-export-data" class="btn btn-outline btn-sm px-2 sm:px-3 gap-1" title="Xuất dữ liệu" aria-label="Xuất dữ liệu">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span class="hidden sm:inline">Xuất dữ liệu</span>
+            </button>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Vùng nội dung chính -->
+  <main class="container mx-auto max-w-5xl p-4 flex-1">
+    <section id="main-content" class="w-full space-y-6">
+      <!-- 1. Phần tổng quan: 3 thẻ thống kê DaisyUI -->
+      <section id="summary-section" aria-label="Tổng quan thu chi">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="summary-cards">
+          <div class="stats shadow-sm bg-base-100 border border-base-300 w-full">
+            <div class="stat">
+              <div class="stat-title text-base-content/70">Tổng thu</div>
+              <div class="stat-value text-emerald-700 text-2xl lg:text-3xl" id="summary-income">0 ₫</div>
+            </div>
+          </div>
+          <div class="stats shadow-sm bg-base-100 border border-base-300 w-full">
+            <div class="stat">
+              <div class="stat-title text-base-content/70">Tổng chi</div>
+              <div class="stat-value text-rose-700 text-2xl lg:text-3xl" id="summary-expense">0 ₫</div>
+            </div>
+          </div>
+          <div class="stats shadow-sm bg-base-100 border border-base-300 w-full">
+            <div class="stat">
+              <div class="stat-title text-base-content/70">Số dư</div>
+              <div class="stat-value text-primary text-2xl lg:text-3xl" id="summary-balance">0 ₫</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Phần danh sách giao dịch -->
+      <section id="transactions-section" aria-label="Danh sách giao dịch">
+        <div class="card bg-base-100 shadow-sm border border-base-300">
+          <div class="card-body p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="card-title text-lg font-bold">Danh sách giao dịch</h2>
+            </div>
+            <!-- Vùng thanh lọc phía trên danh sách -->
+            <div id="filter-container" class="bg-base-200/50 p-3 sm:p-4 rounded-box border border-base-300/70 mb-4 sm:mb-6" aria-label="Bộ lọc giao dịch">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
+                <!-- 1. Chọn tháng -->
+                <div class="form-control w-full sm:col-span-1 lg:col-span-3">
+                  <label class="label py-1" for="filter-month">
+                    <span class="label-text text-xs font-semibold text-base-content/70">Tháng</span>
+                  </label>
+                  <input type="month" id="filter-month" class="input input-bordered input-sm w-full bg-base-100" />
+                </div>
+
+                <!-- 2. Chọn loại -->
+                <div class="form-control w-full sm:col-span-1 lg:col-span-2">
+                  <label class="label py-1" for="filter-type">
+                    <span class="label-text text-xs font-semibold text-base-content/70">Loại</span>
+                  </label>
+                  <select id="filter-type" class="select select-bordered select-sm w-full bg-base-100">
+                    <option value="all">Tất cả loại</option>
+                    <option value="income">Thu nhập</option>
+                    <option value="expense">Chi phí</option>
+                  </select>
+                </div>
+
+                <!-- 3. Chọn danh mục -->
+                <div class="form-control w-full sm:col-span-1 lg:col-span-3">
+                  <label class="label py-1" for="filter-category">
+                    <span class="label-text text-xs font-semibold text-base-content/70">Danh mục</span>
+                  </label>
+                  <select id="filter-category" class="select select-bordered select-sm w-full bg-base-100">
+                    <option value="all">Tất cả danh mục</option>
+                  </select>
+                </div>
+
+                <!-- 4. Tìm trong ghi chú -->
+                <div class="form-control w-full sm:col-span-1 lg:col-span-3">
+                  <label class="label py-1" for="filter-keyword">
+                    <span class="label-text text-xs font-semibold text-base-content/70">Tìm trong ghi chú</span>
+                  </label>
+                  <input type="text" id="filter-keyword" placeholder="Nhập từ khóa tìm..." class="input input-bordered input-sm w-full bg-base-100" />
+                </div>
+
+                <!-- 5. Nút Xóa lọc -->
+                <div class="form-control w-full sm:col-span-2 lg:col-span-1 flex justify-end">
+                  <button type="button" id="btn-reset-filter" class="btn btn-sm btn-outline btn-neutral w-full">
+                    Xóa lọc
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div id="transaction-list-container" class="w-full">
+              <!-- transactionListView render bảng (màn lớn) hoặc thẻ xếp dọc (di động) -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Chân trang -->
+  <footer class="footer footer-center p-4 text-base-content/60 text-sm">
+    <aside>
+      <p>© 2026 Quản lý thu chi</p>
+    </aside>
+  </footer>
+
+  <!-- Nạp các file JS theo đúng thứ tự phụ thuộc -->
+  <script src="js/config.js"></script>
+  <script src="js/storage/storageService.js"></script>
+  <script src="js/models/transaction.js"></script>
+  <script src="js/repositories/transactionRepository.js"></script>
+  <script src="js/services/transactionService.js"></script>
+  <script src="js/services/backupService.js"></script>
+  <script src="js/views/summaryView.js"></script>
+  <script src="js/views/transactionFormView.js"></script>
+  <script src="js/views/transactionListView.js"></script>
+  <script src="js/views/filterView.js"></script>
+  <script src="js/controllers/transactionController.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

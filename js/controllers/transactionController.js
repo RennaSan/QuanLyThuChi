@@ -1,36 +1,7 @@
 window.App = window.App || {};
 
 (function () {
-  /**
-   * Đảm bảo deleteConfirmView.js được nạp vào tài liệu nếu chưa có thẻ script
-   */
-  function ensureDeleteConfirmViewLoaded() {
-    if (window.App.DeleteConfirmView || window.App.deleteConfirmView) {
-      return;
-    }
-    if (document.querySelector('script[src*="deleteConfirmView.js"]')) {
-      return;
-    }
 
-    let scriptUrl = 'js/views/deleteConfirmView.js';
-    try {
-      if (document.currentScript && document.currentScript.src) {
-        scriptUrl = document.currentScript.src.replace(/controllers\/transactionController\.js(\?.*)?$/i, 'views/deleteConfirmView.js$1');
-      }
-    } catch (e) {
-      // Fallback mặc định
-    }
-
-    if (document.readyState === 'loading') {
-      document.write('<script src="' + scriptUrl + '"><\/script>');
-    } else {
-      const script = document.createElement('script');
-      script.src = scriptUrl;
-      document.head.appendChild(script);
-    }
-  }
-
-  ensureDeleteConfirmViewLoaded();
 
   /**
    * Lấy đối tượng TransactionService từ window.App
@@ -226,15 +197,10 @@ window.App = window.App || {};
     }
 
     if (listView && typeof listView.render === 'function') {
-      listView.render(transactions);
-
-      // Nếu đang lọc mà không có kết quả -> hiển thị "Không có giao dịch phù hợp"
-      if (transactions.length === 0 && isFilterActive(currentFilter)) {
-        const emptyP = document.querySelector('#empty-state p');
-        if (emptyP) {
-          emptyP.textContent = 'Không có giao dịch phù hợp';
-        }
-      }
+      const emptyMessage = (transactions.length === 0 && isFilterActive(currentFilter))
+        ? 'Không có giao dịch phù hợp'
+        : 'Chưa có giao dịch';
+      listView.render(transactions, null, { emptyMessage: emptyMessage });
     }
   }
 
@@ -242,7 +208,6 @@ window.App = window.App || {};
    * Khởi tạo controller khi trang sẵn sàng
    */
   function init() {
-    ensureDeleteConfirmViewLoaded();
 
     const formView = getFormView();
     if (formView) {

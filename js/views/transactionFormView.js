@@ -38,30 +38,14 @@ window.App = window.App || {};
    * @returns {string[]}
    */
   function getCategories(type) {
-    const config = window.App.Config || {};
-    const defaultExpense = [
-      'Ăn uống',
-      'Di chuyển',
-      'Nhà ở',
-      'Học tập',
-      'Giải trí',
-      'Sức khỏe',
-      'Khác'
-    ];
-    const defaultIncome = [
-      'Lương',
-      'Thưởng',
-      'Khác'
-    ];
-
-    if (type === 'income') {
-      return (config.CATEGORIES && config.CATEGORIES.income) ||
-             config.INCOME_CATEGORIES ||
-             defaultIncome;
+    if (typeof window.App.getCategories === 'function') {
+      return window.App.getCategories(type);
     }
-    return (config.CATEGORIES && config.CATEGORIES.expense) ||
-           config.EXPENSE_CATEGORIES ||
-           defaultExpense;
+    const config = window.App.Config || {};
+    if (type === 'income') {
+      return (config.CATEGORIES && config.CATEGORIES.income) || config.INCOME_CATEGORIES || [];
+    }
+    return (config.CATEGORIES && config.CATEGORIES.expense) || config.EXPENSE_CATEGORIES || [];
   }
 
   /**
@@ -125,6 +109,8 @@ window.App = window.App || {};
     modalDialog = document.createElement('dialog');
     modalDialog.id = 'transaction-modal';
     modalDialog.className = 'modal modal-bottom sm:modal-middle';
+    modalDialog.setAttribute('aria-labelledby', 'form-modal-title');
+    modalDialog.setAttribute('role', 'dialog');
 
     // 2. Hộp modal
     const modalBox = document.createElement('div');
@@ -253,6 +239,8 @@ window.App = window.App || {};
     inputAmount.placeholder = 'Ví dụ: 50000';
     inputAmount.min = '1';
     inputAmount.step = '1';
+    inputAmount.setAttribute('aria-required', 'true');
+    inputAmount.setAttribute('aria-describedby', 'form-error-amount');
 
     fieldAmountGroup.appendChild(labelAmount);
     fieldAmountGroup.appendChild(inputAmount);
@@ -275,6 +263,8 @@ window.App = window.App || {};
     selectCategory.id = 'form-category';
     selectCategory.name = 'category';
     selectCategory.className = 'select select-bordered w-full';
+    selectCategory.setAttribute('aria-required', 'true');
+    selectCategory.setAttribute('aria-describedby', 'form-error-category');
 
     fieldCategoryGroup.appendChild(labelCategory);
     fieldCategoryGroup.appendChild(selectCategory);
@@ -298,6 +288,8 @@ window.App = window.App || {};
     inputDate.id = 'form-date';
     inputDate.name = 'date';
     inputDate.className = 'input input-bordered w-full';
+    inputDate.setAttribute('aria-required', 'true');
+    inputDate.setAttribute('aria-describedby', 'form-error-date');
 
     fieldDateGroup.appendChild(labelDate);
     fieldDateGroup.appendChild(inputDate);
@@ -326,6 +318,7 @@ window.App = window.App || {};
     textareaNote.rows = 2;
     textareaNote.className = 'textarea textarea-bordered w-full';
     textareaNote.placeholder = 'Ghi chú thêm...';
+    textareaNote.setAttribute('aria-describedby', 'form-error-note');
 
     fieldNoteGroup.appendChild(labelNote);
     fieldNoteGroup.appendChild(textareaNote);

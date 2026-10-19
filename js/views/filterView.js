@@ -11,29 +11,12 @@ window.App = window.App || {};
    * @returns {string[]}
    */
   function getCategories(type) {
+    if (typeof window.App.getCategories === 'function') {
+      return window.App.getCategories(type);
+    }
     const config = window.App.Config || {};
-    const defaultExpense = [
-      'Ăn uống',
-      'Di chuyển',
-      'Nhà ở',
-      'Học tập',
-      'Giải trí',
-      'Sức khỏe',
-      'Khác'
-    ];
-    const defaultIncome = [
-      'Lương',
-      'Thưởng',
-      'Khác'
-    ];
-
-    const expenseList = (config.CATEGORIES && config.CATEGORIES.expense) ||
-                        config.EXPENSE_CATEGORIES ||
-                        defaultExpense;
-
-    const incomeList = (config.CATEGORIES && config.CATEGORIES.income) ||
-                       config.INCOME_CATEGORIES ||
-                       defaultIncome;
+    const expenseList = (config.CATEGORIES && config.CATEGORIES.expense) || config.EXPENSE_CATEGORIES || [];
+    const incomeList = (config.CATEGORIES && config.CATEGORIES.income) || config.INCOME_CATEGORIES || [];
 
     if (type === 'expense') {
       return expenseList;
@@ -42,7 +25,6 @@ window.App = window.App || {};
       return incomeList;
     }
 
-    // type === 'all': gom danh sách không trùng lặp
     const combined = [];
     expenseList.forEach(function (cat) {
       if (!combined.includes(cat)) {
@@ -79,11 +61,8 @@ window.App = window.App || {};
     defaultOption.textContent = 'Tất cả danh mục';
     categorySelect.appendChild(defaultOption);
 
-    const config = window.App.Config || {};
-    const defaultExpense = ['Ăn uống', 'Di chuyển', 'Nhà ở', 'Học tập', 'Giải trí', 'Sức khỏe', 'Khác'];
-    const defaultIncome = ['Lương', 'Thưởng', 'Khác'];
-    const expenseList = (config.CATEGORIES && config.CATEGORIES.expense) || config.EXPENSE_CATEGORIES || defaultExpense;
-    const incomeList = (config.CATEGORIES && config.CATEGORIES.income) || config.INCOME_CATEGORIES || defaultIncome;
+    const expenseList = getCategories('expense');
+    const incomeList = getCategories('income');
 
     if (currentType === 'expense') {
       expenseList.forEach(function (cat) {

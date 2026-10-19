@@ -9,6 +9,10 @@ window.App = window.App || {};
     if (controller && typeof controller.init === 'function') {
       controller.init();
     }
+    const backupController = window.App.BackupController || window.App.backupController;
+    if (backupController && typeof backupController.init === 'function') {
+      backupController.init();
+    }
   }
 
   window.App.init = init;

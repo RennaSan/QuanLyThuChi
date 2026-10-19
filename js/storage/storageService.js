@@ -69,6 +69,33 @@ window.App = window.App || {};
   }
 
   /**
+   * Xử lý khi phát hiện dữ liệu lưu trữ hỏng hoặc sai cấu trúc:
+   * Sao lưu vào corruptKey và khởi tạo lại dữ liệu rỗng ở storageKey
+   * @param {string} raw
+   * @param {string} corruptKey
+   * @param {string} storageKey
+   * @param {string} warningMessage
+   * @returns {{schemaVersion: number, transactions: Array}}
+   */
+  function handleCorruptData(raw, corruptKey, storageKey, warningMessage) {
+    try {
+      window.localStorage.setItem(corruptKey, raw);
+    } catch (backupErr) {
+      console.warn('Không thể lưu bản sao dữ liệu vào ' + corruptKey + ':', backupErr);
+    }
+
+    const fallbackData = createEmptyData();
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(fallbackData));
+    } catch (resetErr) {
+      // Bỏ qua lỗi ghi đè nếu bộ nhớ bị khóa/lỗi
+    }
+
+    console.warn(warningMessage);
+    return fallbackData;
+  }
+
+  /**
    * Tải dữ liệu từ localStorage
    * - Trả về {schemaVersion, transactions}
    * - Tự tạo dữ liệu rỗng khi chưa có
@@ -103,41 +130,22 @@ window.App = window.App || {};
     try {
       parsed = JSON.parse(raw);
     } catch (parseErr) {
-      // JSON hỏng: sao lưu chuỗi hỏng vào corruptKey và dùng dữ liệu rỗng
-      try {
-        window.localStorage.setItem(corruptKey, raw);
-      } catch (backupErr) {
-        console.warn('Không thể lưu bản sao dữ liệu hỏng vào ' + corruptKey + ':', backupErr);
-      }
-
-      const fallbackData = createEmptyData();
-      try {
-        window.localStorage.setItem(storageKey, JSON.stringify(fallbackData));
-      } catch (resetErr) {
-        // Bỏ qua lỗi ghi đè nếu bộ nhớ bị khóa/lỗi
-      }
-
-      console.warn('Dữ liệu lưu trữ bị hỏng định dạng JSON. Đã sao lưu vào "' + corruptKey + '" và sử dụng dữ liệu rỗng.');
-      return fallbackData;
+      return handleCorruptData(
+        raw,
+        corruptKey,
+        storageKey,
+        'Dữ liệu lưu trữ bị hỏng định dạng JSON. Đã sao lưu vào "' + corruptKey + '" và sử dụng dữ liệu rỗng.'
+      );
     }
 
     // Kiểm tra cấu trúc dữ liệu cơ bản
     if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.transactions)) {
-      try {
-        window.localStorage.setItem(corruptKey, raw);
-      } catch (backupErr) {
-        console.warn('Không thể lưu bản sao dữ liệu sai cấu trúc vào ' + corruptKey + ':', backupErr);
-      }
-
-      const fallbackData = createEmptyData();
-      try {
-        window.localStorage.setItem(storageKey, JSON.stringify(fallbackData));
-      } catch (resetErr) {
-        // Bỏ qua
-      }
-
-      console.warn('Dữ liệu lưu trữ không đúng cấu trúc (thiếu danh sách transactions). Đã sao lưu vào "' + corruptKey + '" và sử dụng dữ liệu rỗng.');
-      return fallbackData;
+      return handleCorruptData(
+        raw,
+        corruptKey,
+        storageKey,
+        'Dữ liệu lưu trữ không đúng cấu trúc (thiếu danh sách transactions). Đã sao lưu vào "' + corruptKey + '" và sử dụng dữ liệu rỗng.'
+      );
     }
 
     return {
@@ -166,7 +174,6 @@ window.App = window.App || {};
     const { storageKey, schemaVersion } = getConfig();
 
     const payload = {
-      ...data,
       schemaVersion: typeof data.schemaVersion === 'number' ? data.schemaVersion : schemaVersion,
       transactions: data.transactions
     };

@@ -21,6 +21,9 @@ window.App = window.App || {};
    * @returns {string}
    */
   function formatCurrency(amount) {
+    if (typeof window.App.formatCurrency === 'function') {
+      return window.App.formatCurrency(amount);
+    }
     if (window.App.TransactionListView && typeof window.App.TransactionListView.formatCurrency === 'function') {
       return window.App.TransactionListView.formatCurrency(amount);
     }
@@ -50,6 +53,8 @@ window.App = window.App || {};
     modalDialog = document.createElement('dialog');
     modalDialog.id = 'delete-confirm-modal';
     modalDialog.className = 'modal';
+    modalDialog.setAttribute('aria-labelledby', 'delete-modal-title');
+    modalDialog.setAttribute('role', 'dialog');
 
     // 2. Hộp modal
     const modalBox = document.createElement('div');

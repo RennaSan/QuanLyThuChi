@@ -28,4 +28,39 @@ window.App = window.App || {};
     EXPENSE_CATEGORIES: EXPENSE_CATEGORIES,
     INCOME_CATEGORIES: INCOME_CATEGORIES
   });
+
+  /**
+   * Định dạng số tiền theo chuẩn vi-VN (VND, số nguyên) dùng chung toàn ứng dụng
+   * @param {number|string} amount
+   * @returns {string}
+   */
+  window.App.formatCurrency = function (amount) {
+    const num = Math.round(Number(amount)) || 0;
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(num);
+  };
+
+  /**
+   * Lấy danh sách danh mục theo loại dùng chung
+   * @param {string} type - 'expense' | 'income' | 'all'
+   * @returns {string[]}
+   */
+  window.App.getCategories = function (type) {
+    if (type === 'expense') {
+      return EXPENSE_CATEGORIES;
+    }
+    if (type === 'income') {
+      return INCOME_CATEGORIES;
+    }
+    const combined = [];
+    EXPENSE_CATEGORIES.forEach(function (cat) {
+      if (!combined.includes(cat)) combined.push(cat);
+    });
+    INCOME_CATEGORIES.forEach(function (cat) {
+      if (!combined.includes(cat)) combined.push(cat);
+    });
+    return combined;
+  };
 })();

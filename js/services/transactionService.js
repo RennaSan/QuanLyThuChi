@@ -19,31 +19,15 @@ window.App = window.App || {};
    * @returns {string[]}
    */
   function getCategoriesForType(type) {
+    if (typeof window.App.getCategories === 'function') {
+      return window.App.getCategories(type);
+    }
     const config = window.App.Config || {};
-    const defaultExpense = [
-      'Ăn uống',
-      'Di chuyển',
-      'Nhà ở',
-      'Học tập',
-      'Giải trí',
-      'Sức khỏe',
-      'Khác'
-    ];
-    const defaultIncome = [
-      'Lương',
-      'Thưởng',
-      'Khác'
-    ];
-
     if (type === 'expense') {
-      return (config.CATEGORIES && config.CATEGORIES.expense) ||
-             config.EXPENSE_CATEGORIES ||
-             defaultExpense;
+      return (config.CATEGORIES && config.CATEGORIES.expense) || config.EXPENSE_CATEGORIES || [];
     }
     if (type === 'income') {
-      return (config.CATEGORIES && config.CATEGORIES.income) ||
-             config.INCOME_CATEGORIES ||
-             defaultIncome;
+      return (config.CATEGORIES && config.CATEGORIES.income) || config.INCOME_CATEGORIES || [];
     }
     return [];
   }

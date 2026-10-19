@@ -7,6 +7,9 @@ window.App = window.App || {};
    * @returns {string}
    */
   function formatCurrency(amount) {
+    if (typeof window.App.formatCurrency === 'function') {
+      return window.App.formatCurrency(amount);
+    }
     const num = Math.round(Number(amount)) || 0;
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',

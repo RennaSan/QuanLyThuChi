@@ -1,33 +1,7 @@
 window.App = window.App || {};
 
 (function () {
-  /**
-   * Tự động nạp backupController.js nếu chưa có trong tài liệu
-   */
-  function ensureBackupControllerLoaded() {
-    if (typeof document === 'undefined') return;
-    if (window.App.BackupController || window.App.backupController) return;
-    if (document.querySelector('script[src*="backupController.js"]')) return;
 
-    let scriptUrl = 'js/controllers/backupController.js';
-    try {
-      if (document.currentScript && document.currentScript.src) {
-        scriptUrl = document.currentScript.src.replace(/services\/backupService\.js(\?.*)?$/i, 'controllers/backupController.js$1');
-      }
-    } catch (e) {
-      // Fallback mặc định
-    }
-
-    if (document.readyState === 'loading') {
-      document.write('<script src="' + scriptUrl + '"><\/script>');
-    } else {
-      const script = document.createElement('script');
-      script.src = scriptUrl;
-      document.head.appendChild(script);
-    }
-  }
-
-  ensureBackupControllerLoaded();
 
   /**
    * Lấy TransactionRepository từ window.App
@@ -59,11 +33,6 @@ window.App = window.App || {};
     const repo = getRepository();
     if (repo && typeof repo.getAll === 'function') {
       return repo.getAll();
-    }
-    const storageService = getStorageService();
-    if (storageService && typeof storageService.load === 'function') {
-      const data = storageService.load();
-      return (data && Array.isArray(data.transactions)) ? data.transactions : [];
     }
     return [];
   }

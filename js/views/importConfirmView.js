@@ -30,6 +30,8 @@ window.App = window.App || {};
     modalDialog = document.createElement('dialog');
     modalDialog.id = 'import-confirm-modal';
     modalDialog.className = 'modal';
+    modalDialog.setAttribute('aria-labelledby', 'import-modal-title');
+    modalDialog.setAttribute('role', 'dialog');
 
     // 2. Hộp modal
     const modalBox = document.createElement('div');

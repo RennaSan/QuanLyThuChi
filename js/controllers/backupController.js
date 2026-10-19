@@ -3,33 +3,7 @@ window.App = window.App || {};
 (function () {
   let isInitialized = false;
 
-  /**
-   * Đảm bảo importConfirmView.js được nạp vào tài liệu nếu chưa có thẻ script
-   */
-  function ensureImportConfirmViewLoaded() {
-    if (typeof document === 'undefined') return;
-    if (window.App.ImportConfirmView || window.App.importConfirmView) return;
-    if (document.querySelector('script[src*="importConfirmView.js"]')) return;
 
-    let scriptUrl = 'js/views/importConfirmView.js';
-    try {
-      if (document.currentScript && document.currentScript.src) {
-        scriptUrl = document.currentScript.src.replace(/controllers\/backupController\.js(\?.*)?$/i, 'views/importConfirmView.js$1');
-      }
-    } catch (e) {
-      // Fallback mặc định
-    }
-
-    if (document.readyState === 'loading') {
-      document.write('<script src="' + scriptUrl + '"><\/script>');
-    } else {
-      const script = document.createElement('script');
-      script.src = scriptUrl;
-      document.head.appendChild(script);
-    }
-  }
-
-  ensureImportConfirmViewLoaded();
 
   /**
    * Lấy đối tượng BackupService từ window.App
@@ -274,8 +248,6 @@ window.App = window.App || {};
    */
   function init() {
     if (isInitialized) return;
-
-    ensureImportConfirmViewLoaded();
 
     const btnExport = document.getElementById('btn-export-data');
     if (btnExport) {

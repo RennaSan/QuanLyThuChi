@@ -7,6 +7,9 @@ window.App = window.App || {};
    * @returns {string}
    */
   function formatCurrency(amount) {
+    if (typeof window.App.formatCurrency === 'function') {
+      return window.App.formatCurrency(amount);
+    }
     const num = Math.round(Number(amount)) || 0;
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -37,14 +40,14 @@ window.App = window.App || {};
    * Vẽ trạng thái rỗng khi chưa có dữ liệu giao dịch
    * @param {HTMLElement} container
    */
-  function renderEmptyState(container) {
+  function renderEmptyState(container, message) {
     const emptyWrapper = document.createElement('div');
     emptyWrapper.id = 'empty-state';
     emptyWrapper.className = 'text-center py-12 text-base-content/60';
 
     const emptyText = document.createElement('p');
     emptyText.className = 'text-base font-medium';
-    emptyText.textContent = 'Chưa có giao dịch';
+    emptyText.textContent = message || 'Chưa có giao dịch';
 
     emptyWrapper.appendChild(emptyText);
     container.appendChild(emptyWrapper);
@@ -62,6 +65,7 @@ window.App = window.App || {};
 
     const table = document.createElement('table');
     table.className = 'table w-full';
+    table.setAttribute('aria-label', 'Bảng danh sách giao dịch');
 
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
@@ -276,8 +280,21 @@ window.App = window.App || {};
    * @param {Array} transactions
    * @param {HTMLElement} [targetContainer]
    */
-  function render(transactions, targetContainer) {
-    const container = targetContainer || document.getElementById('transaction-list-container');
+  function render(transactions, targetContainer, options) {
+    let container;
+    let opts = {};
+
+    if (targetContainer && targetContainer.nodeType === Node.ELEMENT_NODE) {
+      container = targetContainer;
+      opts = options || {};
+    } else if (targetContainer && typeof targetContainer === 'object' && !targetContainer.nodeType) {
+      container = document.getElementById('transaction-list-container');
+      opts = targetContainer;
+    } else {
+      container = targetContainer || document.getElementById('transaction-list-container');
+      opts = options || {};
+    }
+
     if (!container) return;
 
     // Xóa nội dung cũ bằng textContent
@@ -286,7 +303,7 @@ window.App = window.App || {};
     const items = Array.isArray(transactions) ? transactions : [];
 
     if (items.length === 0) {
-      renderEmptyState(container);
+      renderEmptyState(container, opts.emptyMessage);
       return;
     }
 

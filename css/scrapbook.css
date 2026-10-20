@@ -43,6 +43,11 @@ html {
   --radius-box: 0.75rem;
   --radius-field: 0.5rem;
   --radius-selector: 0.5rem;
+
+  /* Hiệu ứng chuyển động vui tươi & mượt mà (Micro-interactions & Spring easings) */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 /* --------------------------------------------------------------------------
@@ -118,7 +123,7 @@ body::after {
   box-shadow: 0 6px 16px var(--color-shadow);
   border-radius: 4px;
   display: inline-block;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s ease;
 }
 
 /* .polaroid-card: Khung Polaroid lớn cho thẻ tổng quan */
@@ -128,11 +133,31 @@ body::after {
   box-shadow: 0 6px 18px var(--color-shadow);
   border-radius: 0.5rem;
   position: relative;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.28s var(--ease-spring), box-shadow 0.28s ease;
 }
 
 .polaroid-card:hover {
-  box-shadow: 0 10px 24px rgba(47, 93, 168, 0.22);
+  box-shadow: 0 12px 28px rgba(47, 93, 168, 0.22);
+}
+
+.polaroid-card:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+/* Hiệu ứng đung đưa đáng yêu cho bookmark tag khi rê chuột vào thẻ */
+.polaroid-card:hover .bookmark-tag {
+  animation: cuteSway 0.75s var(--ease-spring);
+}
+
+/* Băng keo khẽ nhấc nhẹ tự nhiên khi rê chuột vào thẻ */
+.polaroid-card:hover .tape {
+  animation: tapeLift 0.5s ease;
+}
+
+/* Chấm tròn chỉ báo trạng thái thở nhẹ (breathing pulse) */
+.polaroid-inner span.rounded-full {
+  animation: cutePulseDot 3s ease-in-out infinite;
+  display: inline-block;
 }
 
 /* Vùng khung ảnh bên trong Polaroid */
@@ -153,24 +178,30 @@ body::after {
   transform: rotate(0deg);
 }
 
+@media (max-width: 767px) {
+  .polaroid-card:active {
+    transform: scale(0.98);
+  }
+}
+
 @media (min-width: 768px) {
   .polaroid-tilt-left {
     transform: rotate(-1.5deg);
   }
   .polaroid-tilt-left:hover {
-    transform: rotate(0deg) scale(1.01);
+    transform: translateY(-5px) rotate(0deg) scale(1.02);
   }
   .polaroid-tilt-center {
     transform: rotate(1deg);
   }
   .polaroid-tilt-center:hover {
-    transform: rotate(0deg) scale(1.01);
+    transform: translateY(-5px) rotate(0deg) scale(1.02);
   }
   .polaroid-tilt-right {
     transform: rotate(-1deg);
   }
   .polaroid-tilt-right:hover {
-    transform: rotate(0deg) scale(1.01);
+    transform: translateY(-5px) rotate(0deg) scale(1.02);
   }
 }
 
@@ -186,6 +217,7 @@ body::after {
   box-shadow: 0 1px 3px rgba(47, 93, 168, 0.2);
   pointer-events: none;
   z-index: 10;
+  transition: transform 0.25s var(--ease-spring);
 }
 
 /* Định vị băng keo cho từng thẻ tổng quan */
@@ -223,12 +255,17 @@ body::after {
   box-shadow: 0 2px 4px rgba(47, 93, 168, 0.2);
   pointer-events: none;
   z-index: 10;
+  transform-origin: top center;
+  transition: transform 0.25s var(--ease-spring);
 }
 
 .bookmark-tag svg {
   width: 10px;
   height: 10px;
   color: #FFFFFF;
+  animation: cuteSparkle 4s ease-in-out infinite;
+  animation-delay: 1.6s;
+  transform-origin: center;
 }
 
 /* Màu số tiền đạt chuẩn tương phản WCAG AA >= 4.5:1 trên nền trắng/nhạt */
@@ -255,6 +292,7 @@ body::after {
   height: 40px;
   pointer-events: none;
   z-index: 10;
+  transform-origin: top center;
 }
 
 /* .stamp: Khung tem viền răng cưa / nét đứt */
@@ -266,12 +304,40 @@ body::after {
   position: relative;
 }
 
-/* .sparkle: Sao 4 cánh xanh làm điểm nhấn */
+/* .sparkle: Sao 4 cánh xanh làm điểm nhấn lấp lánh sinh động */
 .sparkle {
   display: inline-block;
   color: var(--color-primary-blue);
   pointer-events: none;
   vertical-align: middle;
+  animation: cuteSparkle 3.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Phân bổ độ trễ để các ngôi sao lấp lánh so le tự nhiên */
+#header-avatar .sparkle {
+  animation-delay: 0.4s;
+}
+
+header .sparkle {
+  animation-delay: 1.1s;
+}
+
+.filter-sticker .sparkle {
+  animation-delay: 0.7s;
+}
+
+#side-vertical-decor svg:first-child {
+  animation-delay: 0.3s;
+}
+
+#side-vertical-decor svg:last-child {
+  animation-delay: 1.9s;
+}
+
+/* 2 sao cố định trang trí nền bồng bềnh lơ lửng */
+.fixed .sparkle {
+  animation: cuteSparkleFloat 5s ease-in-out infinite;
 }
 
 /* --------------------------------------------------------------------------
@@ -338,7 +404,19 @@ body::after {
   }
 }
 
-/* Tinh chỉnh nút bấm hài hòa với phong cách */
+/* Tinh chỉnh nút bấm hài hòa với phong cách & tương tác xúc giác nảy vui tươi */
+.btn {
+  transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1.5px);
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
 .btn-primary {
   background-color: var(--color-primary-blue);
   border-color: var(--color-primary-blue);
@@ -349,6 +427,7 @@ body::after {
 .btn-primary:hover {
   background-color: #3b74c8;
   border-color: #3b74c8;
+  box-shadow: 0 4px 14px rgba(79, 134, 217, 0.45);
 }
 
 .btn-outline {
@@ -361,6 +440,41 @@ body::after {
   background-color: var(--color-primary-blue);
   border-color: var(--color-primary-blue);
   color: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(79, 134, 217, 0.3);
+}
+
+/* Hiệu ứng xoay icon thêm giao dịch khi hover */
+#btn-add-transaction svg {
+  transition: transform 0.3s var(--ease-spring);
+}
+
+#btn-add-transaction:hover svg {
+  transform: rotate(90deg);
+}
+
+/* Hiệu ứng nhún mũi tên nhập/xuất file khi hover */
+#btn-import-data svg,
+#btn-export-data svg {
+  transition: transform 0.25s var(--ease-spring);
+}
+
+#btn-import-data:hover svg {
+  transform: translateY(-2.5px);
+}
+
+#btn-export-data:hover svg {
+  transform: translateY(2.5px);
+}
+
+/* Avatar Polaroid nghiêng lắc nhẹ dễ thương khi hover */
+#header-avatar .polaroid {
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+#header-avatar:hover .polaroid {
+  transform: rotate(3deg) scale(1.08);
+  box-shadow: 0 8px 18px var(--color-shadow);
 }
 
 /* Đảm bảo vùng chạm >= 40px cho các nút trên header */
@@ -397,6 +511,11 @@ textarea:focus-visible {
   box-shadow: 0 4px 14px var(--color-shadow);
   border-radius: 0.75rem;
   position: relative;
+  transition: box-shadow 0.25s ease;
+}
+
+.filter-paper:hover {
+  box-shadow: 0 6px 18px rgba(47, 93, 168, 0.2);
 }
 
 /* .filter-sticker: Nhãn dán trang trí góc trên thanh lọc theo DESIGN_SPEC.md */
@@ -417,6 +536,11 @@ textarea:focus-visible {
   z-index: 10;
   user-select: none;
   border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: transform 0.25s var(--ease-spring);
+}
+
+.filter-paper:hover .filter-sticker {
+  transform: rotate(1deg) translateY(-2px) scale(1.03);
 }
 
 /* Ô nhập và ô chọn trên thanh lọc: chiều cao >= 40px đạt chuẩn touch target di động */
@@ -429,7 +553,7 @@ textarea:focus-visible {
   border-color: var(--color-border);
   color: var(--color-body-text);
   border-radius: 0.5rem;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, transform 0.2s var(--ease-spring);
 }
 
 #filter-container .input:focus,
@@ -438,6 +562,7 @@ textarea:focus-visible {
   border-color: var(--color-primary-blue);
   outline: none;
   box-shadow: 0 0 0 2px rgba(79, 134, 217, 0.2);
+  transform: translateY(-1px);
 }
 
 /* Nút Xóa lọc dạng viên thuốc (pill) với vùng chạm chuẩn >= 40px */
@@ -449,13 +574,27 @@ textarea:focus-visible {
   color: var(--color-title-blue);
   background-color: #FFFFFF;
   font-family: var(--font-body);
+  transition: transform 0.25s var(--ease-spring), background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.2s ease;
+}
+
+#btn-reset-filter svg {
+  transition: transform 0.35s var(--ease-spring);
+}
+
+#btn-reset-filter:hover svg {
+  transform: rotate(180deg);
 }
 
 #btn-reset-filter:hover {
   background-color: var(--color-primary-blue);
   border-color: var(--color-primary-blue);
   color: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(79, 134, 217, 0.3);
+  box-shadow: 0 4px 12px rgba(79, 134, 217, 0.3);
+  transform: translateY(-1.5px);
+}
+
+#btn-reset-filter:active {
+  transform: scale(0.95);
 }
 
 /* --------------------------------------------------------------------------
@@ -469,6 +608,18 @@ textarea:focus-visible {
   box-shadow: 0 4px 14px var(--color-shadow);
   border-radius: 0.75rem;
   overflow: hidden;
+}
+
+/* Xuất hiện mượt mà tuần tự cho dòng bảng */
+.cute-row-enter {
+  animation: cuteRowSlideIn 0.32s var(--ease-soft) both;
+  animation-delay: var(--row-delay, 0ms);
+}
+
+/* Xuất hiện mượt mà tuần tự cho thẻ mobile */
+.cute-card-enter {
+  animation: cuteCardSlideIn 0.32s var(--ease-soft) both;
+  animation-delay: var(--card-delay, 0ms);
 }
 
 /* Bảng danh sách giao dịch kiểu Scrapbook */
@@ -495,7 +646,7 @@ textarea:focus-visible {
 /* Dòng cách nhau bằng đường chấm xanh theo DESIGN_SPEC.md */
 .transaction-table tbody tr {
   border-bottom: 1.5px dotted var(--color-border);
-  transition: background-color 0.15s ease;
+  transition: background-color 0.2s ease;
 }
 
 .transaction-table tbody tr:last-child {
@@ -503,7 +654,7 @@ textarea:focus-visible {
 }
 
 .transaction-table tbody tr:hover {
-  background-color: rgba(244, 248, 254, 0.75);
+  background-color: rgba(244, 248, 254, 0.85);
 }
 
 .transaction-table tbody td {
@@ -519,11 +670,41 @@ textarea:focus-visible {
   box-shadow: 0 2px 8px var(--color-shadow);
   border-radius: 0.625rem;
   padding: 0.875rem 1rem;
-  transition: box-shadow 0.15s ease;
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s ease;
 }
 
 .transaction-card:hover {
-  box-shadow: 0 4px 12px var(--color-shadow);
+  transform: translateY(-2.5px);
+  box-shadow: 0 6px 16px rgba(47, 93, 168, 0.18);
+}
+
+/* Badge loại giao dịch nảy nhẹ khi rê chuột */
+.badge {
+  transition: transform 0.2s var(--ease-spring);
+}
+
+.badge:hover {
+  transform: scale(1.08);
+}
+
+/* Nút Sửa và Nút Xóa */
+.btn-edit,
+.btn-delete {
+  transition: transform 0.2s var(--ease-spring), background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-edit:hover {
+  transform: scale(1.06);
+}
+
+.btn-delete:hover {
+  transform: scale(1.06);
+  animation: cuteWobble 0.4s ease-in-out;
+}
+
+.btn-edit:active,
+.btn-delete:active {
+  transform: scale(0.92);
 }
 
 /* Đường chấm xanh phân cách phần ghi chú trên thẻ mobile */
@@ -540,13 +721,26 @@ textarea:focus-visible {
   word-break: break-word;
 }
 
-/* Khung tem răng cưa cho trạng thái rỗng theo DESIGN_SPEC.md */
+/* Khung tem răng cưa cho trạng thái rỗng bồng bềnh lơ lửng */
 .stamp-empty-box {
   background-color: var(--color-paper);
   border: 2px dashed var(--color-border);
   box-shadow: 0 4px 16px var(--color-shadow);
   border-radius: 0.75rem;
   position: relative;
+  animation: cuteFloat 3.8s ease-in-out infinite;
+}
+
+.stamp-empty-box:hover {
+  animation-play-state: paused;
+}
+
+.stamp-empty-box .rounded-full {
+  transition: transform 0.3s var(--ease-spring);
+}
+
+.stamp-empty-box:hover .rounded-full {
+  transform: scale(1.15) rotate(12deg);
 }
 
 .stamp-empty-box::before {
@@ -562,7 +756,7 @@ textarea:focus-visible {
    7. Hộp thoại phong cách Scrapbook (Modals: Giấy trắng, kẹp giấy, băng keo, bo góc)
    -------------------------------------------------------------------------- */
 
-/* Tờ giấy trắng bo góc cho hộp thoại */
+/* Tờ giấy trắng bo góc cho hộp thoại rơi nhẹ xuống bàn */
 .modal-paper {
   background-color: #FFFFFF !important;
   border: 1px solid var(--color-border) !important;
@@ -570,6 +764,10 @@ textarea:focus-visible {
   border-radius: 0.875rem !important;
   position: relative;
   overflow: visible;
+}
+
+dialog[open] .modal-paper {
+  animation: modalPaperDrop 0.35s var(--ease-spring) both;
 }
 
 /* Kẹp giấy SVG đơn giản ở góc trên bên trái modal theo DESIGN_SPEC.md */
@@ -584,6 +782,12 @@ textarea:focus-visible {
   pointer-events: none;
   z-index: 20;
   transform: rotate(-3deg);
+  transform-origin: top center;
+  transition: transform 0.25s var(--ease-spring);
+}
+
+.modal-paper:hover .modal-clip {
+  animation: clipWiggle 0.6s var(--ease-spring);
 }
 
 /* Băng keo dán mép trên modal (kẻ ca-rô xanh) theo DESIGN_SPEC.md */
@@ -609,6 +813,24 @@ textarea:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.25s var(--ease-spring), background-color 0.15s ease, color 0.15s ease;
+}
+
+.modal-btn-close:hover {
+  transform: rotate(90deg) scale(1.08);
+}
+
+.modal-btn-close:active {
+  transform: rotate(90deg) scale(0.92);
+}
+
+/* Tương tác với radio chọn loại giao dịch trong form */
+.label.cursor-pointer {
+  transition: transform 0.2s var(--ease-spring);
+}
+
+.label.cursor-pointer:active {
+  transform: scale(0.97);
 }
 
 /* Màu xanh tiêu đề dạng utility class */
@@ -687,6 +909,7 @@ textarea:focus-visible {
   width: 100%;
   max-width: 24rem;
   margin: 0 auto;
+  animation: stickerPop 0.4s var(--ease-spring) both;
   transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -710,7 +933,200 @@ textarea:focus-visible {
   border-color: rgba(254, 205, 211, 0.7);
 }
 
-/* Tôn trọng prefers-reduced-motion */
+/* --------------------------------------------------------------------------
+   9. Các khung hoạt họa sinh động & dễ thương (Keyframes for Cute Animations)
+   -------------------------------------------------------------------------- */
+
+/* Sao 4 cánh lấp lánh nhẹ nhàng */
+@keyframes cuteSparkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.22) rotate(18deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 3px rgba(79, 134, 217, 0.5));
+  }
+}
+
+/* Sao nền bồng bềnh lơ lửng */
+@keyframes cuteSparkleFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(-8px) scale(1.2) rotate(20deg);
+    opacity: 0.65;
+  }
+}
+
+/* Khung tem trôi lơ lửng */
+@keyframes cuteFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Đu đưa đáng yêu kiểu quả lắc cho bookmark tag */
+@keyframes cuteSway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-7deg);
+  }
+  75% {
+    transform: rotate(6deg);
+  }
+}
+
+/* Băng keo khẽ nhấc nhẹ */
+@keyframes tapeLift {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.03);
+  }
+}
+
+/* Chấm tròn thở nhẹ */
+@keyframes cutePulseDot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+}
+
+/* Số tiền nảy vui tươi khi cập nhật */
+@keyframes numberPop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  75% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.number-pop {
+  animation: numberPop 0.45s var(--ease-spring);
+  display: inline-block;
+  transform-origin: left center;
+}
+
+/* Dòng bảng trượt vào tuần tự */
+@keyframes cuteRowSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Thẻ mobile trượt vào tuần tự */
+@keyframes cuteCardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal giấy rơi xuống bàn */
+@keyframes modalPaperDrop {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.93) rotate(-1deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.01) rotate(0.4deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+/* Kẹp giấy lắc vui nhộn */
+@keyframes clipWiggle {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  30% {
+    transform: rotate(-8deg);
+  }
+  70% {
+    transform: rotate(1deg);
+  }
+}
+
+/* Nút xóa lắc cảnh báo thân thiện */
+@keyframes cuteWobble {
+  0%, 100% {
+    transform: rotate(0deg) scale(1.06);
+  }
+  25% {
+    transform: rotate(-4deg) scale(1.06);
+  }
+  75% {
+    transform: rotate(4deg) scale(1.06);
+  }
+}
+
+/* Dán sticker toast búng nhẹ */
+@keyframes stickerPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.82) rotate(-5deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03) rotate(1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Lỗi form rung nhẹ */
+@keyframes cuteShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+.input-error,
+.select-error,
+.textarea-error {
+  animation: cuteShake 0.35s var(--ease-spring);
+}
+
+/* --------------------------------------------------------------------------
+   10. Tôn trọng prefers-reduced-motion (WCAG 2.3.3 Animation from Interactions)
+   -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -725,7 +1141,14 @@ textarea:focus-visible {
   .filter-sticker,
   .modal-clip,
   .modal-tape,
-  .toast-sticker::before {
+  .toast-sticker::before,
+  .sparkle,
+  .stamp-empty-box,
+  .number-pop,
+  .cute-row-enter,
+  .cute-card-enter,
+  .bookmark-tag {
     transform: none !important;
+    animation: none !important;
   }
 }

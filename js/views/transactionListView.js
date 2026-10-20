@@ -170,11 +170,13 @@ window.App = window.App || {};
 
     const tbody = document.createElement('tbody');
 
-    transactions.forEach(function (item) {
+    transactions.forEach(function (item, index) {
       if (!item) return;
 
       const isIncome = item.type === 'income';
       const tr = document.createElement('tr');
+      tr.className = 'cute-row-enter';
+      tr.style.setProperty('--row-delay', (Math.min(index, 8) * 35) + 'ms');
 
       // 1. Cột Ngày
       const tdDate = document.createElement('td');
@@ -272,13 +274,14 @@ window.App = window.App || {};
     const mobileWrapper = document.createElement('div');
     mobileWrapper.className = 'block lg:hidden flex flex-col gap-3.5 w-full';
 
-    transactions.forEach(function (item) {
+    transactions.forEach(function (item, index) {
       if (!item) return;
 
       const isIncome = item.type === 'income';
 
       const card = document.createElement('div');
-      card.className = 'transaction-card flex flex-col gap-2 max-w-full';
+      card.className = 'transaction-card flex flex-col gap-2 max-w-full cute-card-enter';
+      card.style.setProperty('--card-delay', (Math.min(index, 8) * 35) + 'ms');
 
       // Dòng 1: Ngày, Badge Loại và Cụm nút Thao tác (Sửa/Xóa >= 40px)
       const headerRow = document.createElement('div');

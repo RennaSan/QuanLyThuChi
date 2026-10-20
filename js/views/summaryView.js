@@ -18,6 +18,53 @@ window.App = window.App || {};
   }
 
   /**
+   * Hiệu ứng đếm số mượt mà và nảy vui tươi (cute number counter)
+   * Tuân thủ: Dùng textContent an toàn tuyệt đối, tôn trọng prefers-reduced-motion
+   * @param {HTMLElement} element
+   * @param {number} targetValue
+   */
+  function animateNumber(element, targetValue) {
+    if (!element) return;
+    const previous = typeof element._prevVal === 'number' ? element._prevVal : 0;
+    element._prevVal = targetValue;
+
+    // Tôn trọng prefers-reduced-motion
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      element.textContent = formatCurrency(targetValue);
+      return;
+    }
+
+    if (previous === targetValue) {
+      element.textContent = formatCurrency(targetValue);
+      return;
+    }
+
+    // Kích hoạt class animation nảy vui tươi
+    element.classList.remove('number-pop');
+    void element.offsetWidth; // Buộc reflow để kích hoạt lại animation
+    element.classList.add('number-pop');
+
+    const duration = 350; // ms
+    const startTime = performance.now();
+    const diff = targetValue - previous;
+
+    function step(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // easeOutCubic
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(previous + diff * ease);
+      element.textContent = formatCurrency(current);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        element.textContent = formatCurrency(targetValue);
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  /**
    * Tạo SVG sao 4 cánh an toàn cho nhãn nhỏ kiểu bookmark
    * @returns {SVGElement}
    */
@@ -160,18 +207,26 @@ window.App = window.App || {};
       grid.appendChild(expenseCard);
       grid.appendChild(balanceCard);
       targetContainer.appendChild(grid);
+
+      // Lưu mốc giá trị ban đầu
+      const incEl = document.getElementById('summary-income');
+      const expEl = document.getElementById('summary-expense');
+      const balEl = document.getElementById('summary-balance');
+      if (incEl) incEl._prevVal = totalIncome;
+      if (expEl) expEl._prevVal = totalExpense;
+      if (balEl) balEl._prevVal = balance;
       return;
     }
 
-    // Cập nhật giá trị an toàn qua textContent
+    // Cập nhật giá trị an toàn qua animateNumber
     if (incomeEl) {
-      incomeEl.textContent = formatCurrency(totalIncome);
+      animateNumber(incomeEl, totalIncome);
     }
     if (expenseEl) {
-      expenseEl.textContent = formatCurrency(totalExpense);
+      animateNumber(expenseEl, totalExpense);
     }
     if (balanceEl) {
-      balanceEl.textContent = formatCurrency(balance);
+      animateNumber(balanceEl, balance);
       if (balance < 0) {
         balanceEl.classList.remove('text-balance-positive', 'text-primary');
         balanceEl.classList.add('text-balance-negative');

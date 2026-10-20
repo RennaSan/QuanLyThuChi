@@ -105,7 +105,7 @@ window.App = window.App || {};
     // Nút đóng thủ công (✕) với vùng chạm >= 40px
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
-    closeBtn.className = 'btn btn-ghost btn-xs text-white/90 hover:text-white hover:bg-white/25 rounded-full h-10 w-10 min-h-[40px] min-w-[40px] p-0 shrink-0 inline-flex items-center justify-center transition-colors cursor-pointer';
+    closeBtn.className = 'btn btn-ghost btn-xs text-white/90 hover:text-white hover:bg-white/25 rounded-full h-10 w-10 min-h-[40px] min-w-[40px] p-0 shrink-0 inline-flex items-center justify-center transition-all cursor-pointer hover:rotate-90';
     closeBtn.setAttribute('aria-label', 'Đóng thông báo');
 
     const closeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -131,8 +131,8 @@ window.App = window.App || {};
       isDismissed = true;
       clearTimeout(displayTimer);
       alertDiv.style.opacity = '0';
-      alertDiv.style.transform = 'scale(0.92)';
-      alertDiv.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+      alertDiv.style.transform = 'scale(0.88) translateY(-6px)';
+      alertDiv.style.transition = 'opacity 0.22s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)';
       setTimeout(function () {
         if (alertDiv.parentNode) {
           alertDiv.parentNode.removeChild(alertDiv);

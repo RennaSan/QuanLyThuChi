@@ -44,6 +44,7 @@ File export = cấu trúc trên + "exportedAt" (ISO). Import bỏ qua "exportedA
 - Giai đoạn 2 — Nền, thẻ, lọc & danh sách (D1–D4): Google Fonts, css/scrapbook.css, 3 thẻ Polaroid, thanh lọc tờ giấy có nhãn dán, danh sách đường chấm xanh (thẻ mobile / bảng desktop lg), khung tem rỗng.
 - Giai đoạn 2 — Ba modal & Toast (D5–D6): 3 modal giấy trắng kèm kẹp SVG và băng keo ca-rô, nút đóng >= 40px; Toast nhãn dán xanh đổi vị trí linh hoạt (dưới ở mobile, trên phải ở desktop); chữ xoay dọc mép phải "THU CHI".
 - Giai đoạn 2 — Rà soát toàn diện giao diện (D7): Chuẩn hóa tính nhất quán màu/chữ/họa tiết; responsive 375px/768px/1440px; tương phản WCAG AA; focus bàn phím rõ nét (:focus-visible); vùng chạm mọi nút >= 40px; toàn bộ họa tiết đã aria-hidden="true" và pointer-events-none; 0 innerHTML với dữ liệu; khử CSS thừa.
+- Giai đoạn 2 — Hiệu ứng động sinh động & dễ thương (UI/UX Pro Max): Bổ sung bộ animation micro-interactions cho thẻ Polaroid (nâng thẻ, đung đưa bookmark, thở chấm tròn), đếm số mượt mà kèm pop nảy vui tươi cho 3 thẻ tổng quan, sao lấp lánh (sparkle twinkle & float), xoay icon nút bấm, trượt thác tuần tự cho danh sách, modal rơi nhẹ, sticker toast nảy, rung lắc cảnh báo xóa, và tôn trọng tuyệt đối prefers-reduced-motion.
 
 ## GIAI ĐOẠN 2 — Thiết kế lại giao diện (chức năng đã xong, KHÔNG đổi logic)
 - Phạm vi: chỉ phần view. Cấm sửa js/storage, js/models, js/repositories, js/services và logic trong js/controllers (riêng backupController.js chỉ được sửa markup/class của toast).

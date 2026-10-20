@@ -18,38 +18,92 @@ window.App = window.App || {};
   }
 
   /**
-   * Tạo một thẻ stat DaisyUI bằng DOM API an toàn
-   * @param {string} title - Tiêu đề thẻ (Tổng thu / Tổng chi / Số dư)
-   * @param {string} valueId - ID gán cho phần tử hiển thị giá trị
-   * @param {string} valueText - Giá trị ban đầu
-   * @param {string} valueColorClass - Class màu DaisyUI (text-success, text-error, text-primary)
-   * @returns {HTMLElement}
+   * Tạo SVG sao 4 cánh an toàn cho nhãn nhỏ kiểu bookmark
+   * @returns {SVGElement}
    */
-  function createStatCard(title, valueId, valueText, valueColorClass) {
-    const statsWrapper = document.createElement('div');
-    statsWrapper.className = 'stats shadow-sm bg-base-100 border border-base-300 w-full';
-
-    const stat = document.createElement('div');
-    stat.className = 'stat';
-
-    const statTitle = document.createElement('div');
-    statTitle.className = 'stat-title text-base-content/70';
-    statTitle.textContent = title;
-
-    const statValue = document.createElement('div');
-    statValue.id = valueId;
-    statValue.className = 'stat-value text-2xl lg:text-3xl ' + valueColorClass;
-    statValue.textContent = valueText;
-
-    stat.appendChild(statTitle);
-    stat.appendChild(statValue);
-    statsWrapper.appendChild(stat);
-
-    return statsWrapper;
+  function createSparkleSvg() {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'pointer-events-none');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'currentColor');
+    svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z');
+    svg.appendChild(path);
+    return svg;
   }
 
   /**
-   * Vẽ phần tổng quan (3 thẻ thống kê DaisyUI)
+   * Tạo một thẻ Polaroid theo phong cách Scrapbook (DESIGN_SPEC.md) bằng DOM API an toàn
+   * @param {Object} options
+   * @param {string} options.title - Tiêu đề thẻ (Tổng thu / Tổng chi / Số dư)
+   * @param {string} options.valueId - ID gán cho phần tử hiển thị giá trị (#summary-income / #summary-expense / #summary-balance)
+   * @param {string} options.valueText - Giá trị ban đầu
+   * @param {string} options.colorClass - Class màu giá trị đạt chuẩn tương phản WCAG AA
+   * @param {string} options.tiltClass - Class nghiêng (polaroid-tilt-left, polaroid-tilt-center, polaroid-tilt-right)
+   * @param {string} options.tapeClass - Class căn vị trí băng keo (tape-tilt-left, tape-tilt-center, tape-tilt-right)
+   * @param {string} options.dotColor - Màu chấm tròn chỉ báo
+   * @param {string} options.captionText - Chữ chú thích viết tay ở đáy thẻ
+   * @returns {HTMLElement}
+   */
+  function createPolaroidCard(options) {
+    const card = document.createElement('div');
+    card.className = 'polaroid-card ' + (options.tiltClass || '') + ' p-3.5 sm:p-4 pb-6 sm:pb-7 transition-all duration-200';
+
+    // 1. Băng keo dán mép trên
+    const tape = document.createElement('div');
+    tape.className = 'tape pointer-events-none ' + (options.tapeClass || '');
+    tape.setAttribute('aria-hidden', 'true');
+    card.appendChild(tape);
+
+    // 2. Nhãn nhỏ kiểu bookmark có sao ở góc thẻ
+    const bookmark = document.createElement('div');
+    bookmark.className = 'bookmark-tag pointer-events-none';
+    bookmark.setAttribute('aria-hidden', 'true');
+    bookmark.appendChild(createSparkleSvg());
+    card.appendChild(bookmark);
+
+    // 3. Khung ảnh Polaroid bên trong chứa thông tin
+    const inner = document.createElement('div');
+    inner.className = 'polaroid-inner p-3.5 sm:p-4';
+
+    const headerRow = document.createElement('div');
+    headerRow.className = 'flex items-center justify-between';
+
+    const titleEl = document.createElement('span');
+    titleEl.className = 'text-xs font-semibold uppercase tracking-wider text-[#24406F]';
+    titleEl.textContent = options.title;
+
+    const dotEl = document.createElement('span');
+    dotEl.className = 'w-2 h-2 rounded-full pointer-events-none ' + (options.dotColor || 'bg-[#2F5DA8]/70');
+    dotEl.setAttribute('aria-hidden', 'true');
+
+    headerRow.appendChild(titleEl);
+    headerRow.appendChild(dotEl);
+
+    const valueEl = document.createElement('div');
+    valueEl.id = options.valueId;
+    valueEl.className = 'text-2xl lg:text-3xl font-bold tracking-tight font-body mt-2.5 ' + options.colorClass;
+    valueEl.textContent = options.valueText;
+
+    inner.appendChild(headerRow);
+    inner.appendChild(valueEl);
+    card.appendChild(inner);
+
+    // 4. Đáy Polaroid dày hơn có chữ viết tay trang trí
+    if (options.captionText) {
+      const captionEl = document.createElement('div');
+      captionEl.className = 'font-script text-sm sm:text-base text-[#2F5DA8] opacity-80 mt-2 text-right pr-1 pointer-events-none select-none';
+      captionEl.setAttribute('aria-hidden', 'true');
+      captionEl.textContent = options.captionText;
+      card.appendChild(captionEl);
+    }
+
+    return card;
+  }
+
+  /**
+   * Vẽ phần tổng quan (3 thẻ thống kê Polaroid)
    * Chỉ thao tác DOM, không gọi service hay storage
    * @param {Object} summary - { totalIncome, totalExpense, balance }
    * @param {HTMLElement} [targetContainer]
@@ -64,16 +118,43 @@ window.App = window.App || {};
     let expenseEl = document.getElementById('summary-expense');
     let balanceEl = document.getElementById('summary-balance');
 
-    // Nếu các phần tử chưa có trong DOM và có container chỉ định, dựng các thẻ stat
+    // Nếu các phần tử chưa có trong DOM và có container chỉ định, dựng các thẻ Polaroid
     if ((!incomeEl || !expenseEl || !balanceEl) && targetContainer) {
       targetContainer.textContent = '';
       const grid = document.createElement('div');
-      grid.className = 'grid grid-cols-1 md:grid-cols-3 gap-4';
+      grid.className = 'grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-5 lg:gap-6 items-stretch';
       grid.id = 'summary-cards';
 
-      const incomeCard = createStatCard('Tổng thu', 'summary-income', formatCurrency(totalIncome), 'text-emerald-700');
-      const expenseCard = createStatCard('Tổng chi', 'summary-expense', formatCurrency(totalExpense), 'text-rose-700');
-      const balanceCard = createStatCard('Số dư', 'summary-balance', formatCurrency(balance), balance < 0 ? 'text-rose-700' : 'text-primary');
+      const incomeCard = createPolaroidCard({
+        title: 'Tổng thu',
+        valueId: 'summary-income',
+        valueText: formatCurrency(totalIncome),
+        colorClass: 'text-income',
+        tiltClass: 'polaroid-tilt-left',
+        tapeClass: 'tape-tilt-left',
+        dotColor: 'bg-[#0F766E]/70',
+        captionText: 'tiền vào ~'
+      });
+      const expenseCard = createPolaroidCard({
+        title: 'Tổng chi',
+        valueId: 'summary-expense',
+        valueText: formatCurrency(totalExpense),
+        colorClass: 'text-expense',
+        tiltClass: 'polaroid-tilt-center',
+        tapeClass: 'tape-tilt-center',
+        dotColor: 'bg-[#BE123C]/70',
+        captionText: 'tiền ra ~'
+      });
+      const balanceCard = createPolaroidCard({
+        title: 'Số dư',
+        valueId: 'summary-balance',
+        valueText: formatCurrency(balance),
+        colorClass: balance < 0 ? 'text-balance-negative' : 'text-balance-positive',
+        tiltClass: 'polaroid-tilt-right',
+        tapeClass: 'tape-tilt-right',
+        dotColor: 'bg-[#2F5DA8]/70',
+        captionText: 'tích lũy ~'
+      });
 
       grid.appendChild(incomeCard);
       grid.appendChild(expenseCard);
@@ -92,18 +173,20 @@ window.App = window.App || {};
     if (balanceEl) {
       balanceEl.textContent = formatCurrency(balance);
       if (balance < 0) {
-        balanceEl.classList.remove('text-primary');
-        balanceEl.classList.add('text-rose-700');
+        balanceEl.classList.remove('text-balance-positive', 'text-primary');
+        balanceEl.classList.add('text-balance-negative');
       } else {
-        balanceEl.classList.remove('text-rose-700');
-        balanceEl.classList.add('text-primary');
+        balanceEl.classList.remove('text-balance-negative', 'text-rose-700', 'text-error');
+        balanceEl.classList.add('text-balance-positive');
       }
     }
   }
 
   const SummaryView = {
     render: render,
-    formatCurrency: formatCurrency
+    formatCurrency: formatCurrency,
+    createPolaroidCard: createPolaroidCard,
+    createStatCard: createPolaroidCard // Tương thích ngược
   };
 
   window.App.SummaryView = SummaryView;

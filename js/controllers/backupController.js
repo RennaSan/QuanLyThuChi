@@ -28,7 +28,8 @@ window.App = window.App || {};
   }
 
   /**
-   * Hiển thị thông báo Toast chuẩn DaisyUI bằng textContent (không dùng innerHTML)
+   * Hiển thị thông báo Toast phong cách nhãn dán xanh Scrapbook bằng textContent (không dùng innerHTML)
+   * Vị trí (mục 05): mobile ở dưới giữa màn hình, tablet/desktop ở trên phải không che navbar, có nút đóng
    * Hỗ trợ chuỗi thông báo hoặc mảng thông báo lỗi (tối đa 5 lỗi)
    * @param {string|string[]} message
    * @param {string} [type='warning']
@@ -38,72 +39,100 @@ window.App = window.App || {};
     if (!container) {
       container = document.createElement('div');
       container.id = 'toast-container';
-      container.className = 'toast toast-top toast-end z-50 p-4 max-w-md';
+      container.className = 'toast z-50';
       document.body.appendChild(container);
     }
 
-    const alertTypeClass = type === 'error'
-      ? 'alert-error'
-      : (type === 'success' ? 'alert-success' : 'alert-warning');
+    const isError = type === 'error';
+    const isSuccess = type === 'success';
 
     const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert ' + alertTypeClass + ' shadow-lg flex flex-col items-start gap-2 w-full text-left';
+    alertDiv.className = 'toast-sticker shadow-lg flex items-start gap-2.5 w-full text-left p-3.5 sm:p-4' + (isError ? ' toast-sticker-error' : '');
+    alertDiv.setAttribute('role', 'alert');
 
-    const headerDiv = document.createElement('div');
-    headerDiv.className = 'flex items-center gap-2 w-full';
+    // Cụm icon nhận diện loại thông báo
+    const iconWrapper = document.createElement('div');
+    iconWrapper.className = 'p-1 rounded-full bg-white/20 shrink-0 mt-0.5 pointer-events-none';
 
-    // SVG icon cảnh báo / thành công
     const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    iconSvg.setAttribute('class', 'h-5 w-5 shrink-0 stroke-current');
+    iconSvg.setAttribute('class', 'h-4 w-4 shrink-0 stroke-current text-white pointer-events-none');
     iconSvg.setAttribute('fill', 'none');
     iconSvg.setAttribute('viewBox', '0 0 24 24');
+    iconSvg.setAttribute('aria-hidden', 'true');
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('stroke-linecap', 'round');
     path.setAttribute('stroke-linejoin', 'round');
     path.setAttribute('stroke-width', '2');
 
-    if (type === 'success') {
+    if (isSuccess) {
       path.setAttribute('d', 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z');
-    } else if (type === 'error') {
+    } else if (isError) {
       path.setAttribute('d', 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z');
     } else {
       path.setAttribute('d', 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z');
     }
 
     iconSvg.appendChild(path);
-    headerDiv.appendChild(iconSvg);
+    iconWrapper.appendChild(iconSvg);
+    alertDiv.appendChild(iconWrapper);
+
+    // Cụm nội dung thông báo
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'flex-1 min-w-0 pr-1';
 
     if (Array.isArray(message)) {
-      const titleSpan = document.createElement('span');
-      titleSpan.className = 'font-bold text-sm';
+      const titleSpan = document.createElement('div');
+      titleSpan.className = 'font-bold text-xs sm:text-sm text-white mb-1';
       titleSpan.textContent = 'Từ chối file (phát hiện lỗi):';
-      headerDiv.appendChild(titleSpan);
-      alertDiv.appendChild(headerDiv);
+      contentDiv.appendChild(titleSpan);
 
       const ul = document.createElement('ul');
-      ul.className = 'list-disc list-inside text-xs space-y-1 pl-1';
+      ul.className = 'list-disc list-inside text-xs text-white/95 space-y-1 pl-0.5';
       message.slice(0, 5).forEach(function (errText) {
         const li = document.createElement('li');
         li.textContent = errText;
         ul.appendChild(li);
       });
-      alertDiv.appendChild(ul);
+      contentDiv.appendChild(ul);
     } else {
-      const span = document.createElement('span');
-      span.className = 'text-sm';
+      const span = document.createElement('div');
+      span.className = 'text-xs sm:text-sm font-medium text-white leading-snug break-words';
       span.textContent = message;
-      headerDiv.appendChild(span);
-      alertDiv.appendChild(headerDiv);
+      contentDiv.appendChild(span);
     }
+    alertDiv.appendChild(contentDiv);
 
+    // Nút đóng thủ công (✕) với vùng chạm >= 40px
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'btn btn-ghost btn-xs text-white/90 hover:text-white hover:bg-white/25 rounded-full h-10 w-10 min-h-[40px] min-w-[40px] p-0 shrink-0 inline-flex items-center justify-center transition-colors cursor-pointer';
+    closeBtn.setAttribute('aria-label', 'Đóng thông báo');
+
+    const closeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    closeSvg.setAttribute('class', 'h-4 w-4 stroke-current pointer-events-none');
+    closeSvg.setAttribute('fill', 'none');
+    closeSvg.setAttribute('viewBox', '0 0 24 24');
+    closeSvg.setAttribute('aria-hidden', 'true');
+    const closePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    closePath.setAttribute('stroke-linecap', 'round');
+    closePath.setAttribute('stroke-linejoin', 'round');
+    closePath.setAttribute('stroke-width', '2.2');
+    closePath.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+    closeSvg.appendChild(closePath);
+    closeBtn.appendChild(closeSvg);
+
+    alertDiv.appendChild(closeBtn);
     container.appendChild(alertDiv);
 
-    // Thời gian hiển thị (lỗi danh sách giữ lâu hơn để đọc)
-    const displayDuration = Array.isArray(message) ? 6000 : 3500;
+    let isDismissed = false;
 
-    setTimeout(function () {
+    function dismissToast() {
+      if (isDismissed) return;
+      isDismissed = true;
+      clearTimeout(displayTimer);
       alertDiv.style.opacity = '0';
-      alertDiv.style.transition = 'opacity 0.3s ease';
+      alertDiv.style.transform = 'scale(0.92)';
+      alertDiv.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
       setTimeout(function () {
         if (alertDiv.parentNode) {
           alertDiv.parentNode.removeChild(alertDiv);
@@ -111,8 +140,14 @@ window.App = window.App || {};
         if (container.children.length === 0 && container.parentNode) {
           container.parentNode.removeChild(container);
         }
-      }, 300);
-    }, displayDuration);
+      }, 250);
+    }
+
+    closeBtn.addEventListener('click', dismissToast);
+
+    // Thời gian hiển thị (lỗi danh sách giữ lâu hơn để đọc)
+    const displayDuration = Array.isArray(message) ? 6000 : 3500;
+    const displayTimer = setTimeout(dismissToast, displayDuration);
   }
 
   /**

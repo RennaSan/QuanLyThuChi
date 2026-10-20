@@ -96,6 +96,39 @@ window.App = window.App || {};
   }
 
   /**
+   * Tạo phần tử kẹp giấy SVG đơn giản ở góc modal theo DESIGN_SPEC.md
+   * @returns {SVGElement}
+   */
+  function createPaperclipSVG() {
+    const clipSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    clipSvg.setAttribute('class', 'modal-clip clip pointer-events-none');
+    clipSvg.setAttribute('viewBox', '0 0 24 40');
+    clipSvg.setAttribute('fill', 'none');
+    clipSvg.setAttribute('stroke', 'currentColor');
+    clipSvg.setAttribute('stroke-width', '2.2');
+    clipSvg.setAttribute('stroke-linecap', 'round');
+    clipSvg.setAttribute('stroke-linejoin', 'round');
+    clipSvg.setAttribute('aria-hidden', 'true');
+
+    const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    clipPath.setAttribute('d', 'M7 13v15a5 5 0 0010 0V8a7 7 0 00-14 0v20a9 9 0 0018 0V13');
+    clipSvg.appendChild(clipPath);
+
+    return clipSvg;
+  }
+
+  /**
+   * Tạo phần tử băng keo dải xanh kẻ ca-rô nghiêng ở mép trên theo DESIGN_SPEC.md
+   * @returns {HTMLElement}
+   */
+  function createTapeElement() {
+    const tapeEl = document.createElement('div');
+    tapeEl.className = 'tape modal-tape pointer-events-none';
+    tapeEl.setAttribute('aria-hidden', 'true');
+    return tapeEl;
+  }
+
+  /**
    * Dựng toàn bộ DOM cho Modal Form DaisyUI
    * Tuân thủ: Dùng DOM thuần, textContent an toàn, đầy đủ nhãn và bàn phím
    */
@@ -112,24 +145,30 @@ window.App = window.App || {};
     modalDialog.setAttribute('aria-labelledby', 'form-modal-title');
     modalDialog.setAttribute('role', 'dialog');
 
-    // 2. Hộp modal
+    // 2. Hộp modal (Giấy trắng, bo góc theo DESIGN_SPEC.md)
     const modalBox = document.createElement('div');
-    modalBox.className = 'modal-box w-11/12 max-w-md p-4 sm:p-6 mx-auto relative';
+    modalBox.className = 'modal-box w-11/12 max-w-md p-4 sm:p-6 mx-auto relative modal-paper';
 
-    // Nút đóng "✕" góc trên
+    // Kẹp giấy SVG đơn giản ở góc trên bên trái modal
+    modalBox.appendChild(createPaperclipSVG());
+
+    // Băng keo dải xanh kẻ ca-rô dán nghiêng ở mép trên modal
+    modalBox.appendChild(createTapeElement());
+
+    // Nút đóng "✕" góc trên (Vùng chạm >= 40px theo UX_REVIEW.md mục 10)
     btnCloseX = document.createElement('button');
     btnCloseX.type = 'button';
     btnCloseX.id = 'form-btn-close-x';
-    btnCloseX.className = 'btn btn-sm btn-circle btn-ghost absolute right-3 top-3';
+    btnCloseX.className = 'btn btn-ghost btn-circle modal-btn-close absolute right-3 top-3 text-[#24406F]/70 hover:text-[#24406F] hover:bg-[#F4F8FE]';
     btnCloseX.textContent = '✕';
     btnCloseX.setAttribute('aria-label', 'Đóng hộp thoại');
     btnCloseX.addEventListener('click', close);
     modalBox.appendChild(btnCloseX);
 
-    // Tiêu đề modal
+    // Tiêu đề modal (Playfair Display hoa, giãn chữ nhẹ theo DESIGN_SPEC.md)
     modalTitleEl = document.createElement('h3');
     modalTitleEl.id = 'form-modal-title';
-    modalTitleEl.className = 'font-bold text-lg mb-4 text-base-content';
+    modalTitleEl.className = 'font-title font-bold text-lg mb-4 text-[#2F5DA8] uppercase tracking-wider';
     modalTitleEl.textContent = 'Thêm giao dịch';
     modalBox.appendChild(modalTitleEl);
 
@@ -147,17 +186,14 @@ window.App = window.App || {};
     inputId.value = '';
     formElement.appendChild(inputId);
 
-    // --- Trường 1: Loại giao dịch (Chi phí / Thu nhập) ---
-    const fieldTypeGroup = document.createElement('div');
-    fieldTypeGroup.className = 'form-control w-full';
+    // --- Trường 1: Loại giao dịch (Dùng fieldset và legend theo UX_REVIEW.md mục 09) ---
+    const fieldTypeGroup = document.createElement('fieldset');
+    fieldTypeGroup.className = 'form-control w-full border-0 p-0 m-0';
 
-    const labelType = document.createElement('div');
-    labelType.className = 'label pb-1.5';
-    const labelTypeText = document.createElement('span');
-    labelTypeText.className = 'label-text font-semibold text-base-content';
-    labelTypeText.textContent = 'Loại giao dịch';
-    labelType.appendChild(labelTypeText);
-    fieldTypeGroup.appendChild(labelType);
+    const legendType = document.createElement('legend');
+    legendType.className = 'label-text font-semibold text-[#24406F] pb-1.5 block w-full';
+    legendType.textContent = 'Loại giao dịch';
+    fieldTypeGroup.appendChild(legendType);
 
     const radioGroupWrapper = document.createElement('div');
     radioGroupWrapper.className = 'grid grid-cols-2 gap-2.5';
@@ -166,7 +202,7 @@ window.App = window.App || {};
 
     // Radio: Chi phí
     const labelExpense = document.createElement('label');
-    labelExpense.className = 'label cursor-pointer justify-start gap-2.5 border border-base-300 rounded-lg p-2.5 hover:bg-base-200 transition-colors';
+    labelExpense.className = 'label cursor-pointer justify-start gap-2.5 border border-[#BFD3EE] rounded-lg p-2.5 min-h-[44px] hover:bg-[#F4F8FE] transition-colors';
 
     radioExpense = document.createElement('input');
     radioExpense.type = 'radio';
@@ -177,7 +213,7 @@ window.App = window.App || {};
     radioExpense.checked = true;
 
     const spanExpense = document.createElement('span');
-    spanExpense.className = 'label-text font-medium text-error';
+    spanExpense.className = 'label-text font-medium text-expense';
     spanExpense.textContent = 'Chi phí';
 
     labelExpense.appendChild(radioExpense);
@@ -185,7 +221,7 @@ window.App = window.App || {};
 
     // Radio: Thu nhập
     const labelIncome = document.createElement('label');
-    labelIncome.className = 'label cursor-pointer justify-start gap-2.5 border border-base-300 rounded-lg p-2.5 hover:bg-base-200 transition-colors';
+    labelIncome.className = 'label cursor-pointer justify-start gap-2.5 border border-[#BFD3EE] rounded-lg p-2.5 min-h-[44px] hover:bg-[#F4F8FE] transition-colors';
 
     radioIncome = document.createElement('input');
     radioIncome.type = 'radio';
@@ -195,7 +231,7 @@ window.App = window.App || {};
     radioIncome.className = 'radio radio-success radio-sm';
 
     const spanIncome = document.createElement('span');
-    spanIncome.className = 'label-text font-medium text-success';
+    spanIncome.className = 'label-text font-medium text-income';
     spanIncome.textContent = 'Thu nhập';
 
     labelIncome.appendChild(radioIncome);
@@ -227,7 +263,7 @@ window.App = window.App || {};
     labelAmount.htmlFor = 'form-amount';
     labelAmount.className = 'label pb-1.5';
     const labelAmountText = document.createElement('span');
-    labelAmountText.className = 'label-text font-semibold text-base-content';
+    labelAmountText.className = 'label-text font-semibold text-[#24406F]';
     labelAmountText.textContent = 'Số tiền (VND)';
     labelAmount.appendChild(labelAmountText);
 
@@ -235,7 +271,7 @@ window.App = window.App || {};
     inputAmount.type = 'number';
     inputAmount.id = 'form-amount';
     inputAmount.name = 'amount';
-    inputAmount.className = 'input input-bordered w-full';
+    inputAmount.className = 'input input-bordered w-full min-h-[40px] text-[#24406F] bg-[#F8FAFD] border-[#BFD3EE] focus:bg-white focus:border-[#4F86D9]';
     inputAmount.placeholder = 'Ví dụ: 50000';
     inputAmount.min = '1';
     inputAmount.step = '1';
@@ -255,14 +291,14 @@ window.App = window.App || {};
     labelCategory.htmlFor = 'form-category';
     labelCategory.className = 'label pb-1.5';
     const labelCategoryText = document.createElement('span');
-    labelCategoryText.className = 'label-text font-semibold text-base-content';
+    labelCategoryText.className = 'label-text font-semibold text-[#24406F]';
     labelCategoryText.textContent = 'Danh mục';
     labelCategory.appendChild(labelCategoryText);
 
     selectCategory = document.createElement('select');
     selectCategory.id = 'form-category';
     selectCategory.name = 'category';
-    selectCategory.className = 'select select-bordered w-full';
+    selectCategory.className = 'select select-bordered w-full min-h-[40px] text-[#24406F] bg-[#F8FAFD] border-[#BFD3EE] focus:bg-white focus:border-[#4F86D9]';
     selectCategory.setAttribute('aria-required', 'true');
     selectCategory.setAttribute('aria-describedby', 'form-error-category');
 
@@ -279,7 +315,7 @@ window.App = window.App || {};
     labelDate.htmlFor = 'form-date';
     labelDate.className = 'label pb-1.5';
     const labelDateText = document.createElement('span');
-    labelDateText.className = 'label-text font-semibold text-base-content';
+    labelDateText.className = 'label-text font-semibold text-[#24406F]';
     labelDateText.textContent = 'Ngày giao dịch';
     labelDate.appendChild(labelDateText);
 
@@ -287,7 +323,7 @@ window.App = window.App || {};
     inputDate.type = 'date';
     inputDate.id = 'form-date';
     inputDate.name = 'date';
-    inputDate.className = 'input input-bordered w-full';
+    inputDate.className = 'input input-bordered w-full min-h-[40px] text-[#24406F] bg-[#F8FAFD] border-[#BFD3EE] focus:bg-white focus:border-[#4F86D9]';
     inputDate.setAttribute('aria-required', 'true');
     inputDate.setAttribute('aria-describedby', 'form-error-date');
 
@@ -304,10 +340,10 @@ window.App = window.App || {};
     labelNote.htmlFor = 'form-note';
     labelNote.className = 'label pb-1.5';
     const labelNoteText = document.createElement('span');
-    labelNoteText.className = 'label-text font-semibold text-base-content';
+    labelNoteText.className = 'label-text font-semibold text-[#24406F]';
     labelNoteText.textContent = 'Ghi chú';
     const labelNoteAlt = document.createElement('span');
-    labelNoteAlt.className = 'label-text-alt text-base-content/60';
+    labelNoteAlt.className = 'label-text-alt text-[#24406F]/60';
     labelNoteAlt.textContent = '(tối đa 200 ký tự)';
     labelNote.appendChild(labelNoteText);
     labelNote.appendChild(labelNoteAlt);
@@ -316,7 +352,7 @@ window.App = window.App || {};
     textareaNote.id = 'form-note';
     textareaNote.name = 'note';
     textareaNote.rows = 2;
-    textareaNote.className = 'textarea textarea-bordered w-full';
+    textareaNote.className = 'textarea textarea-bordered w-full text-[#24406F] bg-[#F8FAFD] border-[#BFD3EE] focus:bg-white focus:border-[#4F86D9]';
     textareaNote.placeholder = 'Ghi chú thêm...';
     textareaNote.setAttribute('aria-describedby', 'form-error-note');
 
@@ -325,21 +361,21 @@ window.App = window.App || {};
     fieldNoteGroup.appendChild(createErrorElement('note'));
     formElement.appendChild(fieldNoteGroup);
 
-    // --- Nút hành động Form ---
+    // --- Nút hành động Form (Mobile: xếp cột đảo thứ tự, full-width theo UX_REVIEW.md mục 08) ---
     const actionWrapper = document.createElement('div');
-    actionWrapper.className = 'modal-action mt-4 flex items-center justify-end gap-2';
+    actionWrapper.className = 'modal-action mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 sm:gap-2';
 
     btnCancel = document.createElement('button');
     btnCancel.type = 'button';
     btnCancel.id = 'form-btn-cancel';
-    btnCancel.className = 'btn btn-ghost';
+    btnCancel.className = 'btn btn-ghost w-full sm:w-auto min-h-[40px] border border-[#BFD3EE] hover:bg-[#F4F8FE] text-[#24406F]';
     btnCancel.textContent = 'Hủy';
     btnCancel.addEventListener('click', close);
 
     btnSubmit = document.createElement('button');
     btnSubmit.type = 'submit';
     btnSubmit.id = 'form-btn-submit';
-    btnSubmit.className = 'btn btn-primary';
+    btnSubmit.className = 'btn btn-primary w-full sm:w-auto min-h-[40px] shadow-xs';
     btnSubmit.textContent = 'Lưu';
 
     actionWrapper.appendChild(btnCancel);

@@ -40,9 +40,19 @@ File export = cấu trúc trên + "exportedAt" (ISO). Import bỏ qua "exportedA
 [x] 9 Export JSON  [x] 10 Import JSON  [x] 11 Rà soát UX  [x] 12 Sửa theo UX  [x] 13 Rà soát mã
 
 ## Nhật ký
-- Khung dự án và nền tảng lưu trữ (Phiên 1–3): index.html (Tailwind v4 + DaisyUI v5 CDN), js/config.js, js/storage/storageService.js (load/save an toàn, khôi phục JSON hỏng), js/models/transaction.js (UUID/ISO), js/repositories/transactionRepository.js (CRUD thô qua storageService).
-- Nghiệp vụ giao dịch (Phiên 4): js/services/transactionService.js hàm thuần không chạm DOM (validate tiếng Việt bắt lỗi âm/rỗng/số lẻ/2026-02-30/sai danh mục, add/update/remove qua repository, list lọc theo tháng/loại/danh mục/từ khóa, summarize tính thu/chi/dư).
-- Giao diện và điều khiển (Phiên 5–8): summaryView.js (3 thẻ stat vi-VN), transactionListView.js (responsive bảng desktop / thẻ mobile), transactionFormView.js (modal thêm/sửa, bắt lỗi từng trường), deleteConfirmView.js (modal xác nhận xóa), filterView.js (thanh lọc đa tiêu chí), transactionController.js điều phối dữ liệu.
-- Sao lưu và phục hồi JSON (Phiên 9–10): backupService.js, backupController.js, importConfirmView.js. Thẩm định trọn gói schemaVersion 1, transactions mảng, id/createdAt/updatedAt hợp lệ; hộp thoại xác nhận số lượng; xuất Blob/download, nạp FileReader, hiển thị Toast an toàn bằng textContent.
-- Đánh giá và tối ưu UX (Phiên 11–12): Triệt tiêu lỗi tràn ngang màn hình 375px trên navbar, sửa lỗi modal co giãn căn giữa không bị cắt lề trái, tăng touch target nút Sửa/Xóa đạt chuẩn (40x58px), nâng độ tương phản màu số tiền đạt chuẩn WCAG AA (> 4.5:1).
-- Rà soát mã toàn diện (Phiên 13): Rà soát từng file theo đúng thứ tự storage → repository → service → controller → view. Sửa triệt để vi phạm chiều gọi (loại bỏ nạp script động bằng DOM trong service/controller, khai báo đủ script trong index.html, khởi tạo tập trung tại app.js); khử mã trùng lặp (dùng chung formatCurrency và getCategories qua window.App, gộp xử lý sao lưu dữ liệu hỏng trong storageService); chuyển logic thông báo empty state từ controller về view; khử nguy cơ thừa trường khi lưu dữ liệu; bổ sung đầy đủ nhãn a11y (aria-label, role dialog, aria-labelledby, aria-describedby). Chạy lại toàn bộ kiểm tra Prompt 3, 4 và vòng xuất → xóa → nhập Prompt 10 đều đạt chuẩn.
+- Giai đoạn 1 — Nghiệp vụ, UX & Rà soát mã (Phiên 1–13): Hoàn thiện kiến trúc MVC thuần, storageService an toàn, CRUD giao dịch, bộ lọc, sao lưu JSON, thẩm định tiếng Việt, chuẩn a11y và tuyệt đối không innerHTML.
+- Giai đoạn 2 — Nền, thẻ, lọc & danh sách (D1–D4): Google Fonts, css/scrapbook.css, 3 thẻ Polaroid, thanh lọc tờ giấy có nhãn dán, danh sách đường chấm xanh (thẻ mobile / bảng desktop lg), khung tem rỗng.
+- Giai đoạn 2 — Ba modal & Toast (D5–D6): 3 modal giấy trắng kèm kẹp SVG và băng keo ca-rô, nút đóng >= 40px; Toast nhãn dán xanh đổi vị trí linh hoạt (dưới ở mobile, trên phải ở desktop); chữ xoay dọc mép phải "THU CHI".
+- Giai đoạn 2 — Rà soát toàn diện giao diện (D7): Chuẩn hóa tính nhất quán màu/chữ/họa tiết; responsive 375px/768px/1440px; tương phản WCAG AA; focus bàn phím rõ nét (:focus-visible); vùng chạm mọi nút >= 40px; toàn bộ họa tiết đã aria-hidden="true" và pointer-events-none; 0 innerHTML với dữ liệu; khử CSS thừa.
+
+## GIAI ĐOẠN 2 — Thiết kế lại giao diện (chức năng đã xong, KHÔNG đổi logic)
+- Phạm vi: chỉ phần view. Cấm sửa js/storage, js/models, js/repositories, js/services và logic trong js/controllers (riêng backupController.js chỉ được sửa markup/class của toast).
+- Đọc DESIGN_SPEC.md trước mỗi phiên.
+- Ngoại lệ so với "Quyết định cố định": được thêm Google Fonts (Playfair Display, Dancing Script, Be Vietnam Pro) và file css/scrapbook.css.
+- Kiểm tra: KHÔNG dùng browser agent hay script tự động. Cuối phiên đưa tôi các bước kiểm tra bằng tay (375px, 768px, 1440px), chờ tôi báo kết quả rồi mới tích mục.
+- images/design/mockup.png chỉ để đọc, không sửa ảnh trong images/.
+- Không tạo file test hay file tạm trong dự án.
+
+## Danh sách việc — Giai đoạn 2
+[x] D1 Nền, chữ, header  [x] D2 Thẻ tổng quan  [x] D3 Thanh lọc  [x] D4 Danh sách và trạng thái rỗng
+[x] D5 Ba modal  [x] D6 Toast và chi tiết  [x] D7 Rà soát

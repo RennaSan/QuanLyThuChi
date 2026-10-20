@@ -1,0 +1,731 @@
+/* ==========================================================================
+   css/scrapbook.css — Bảng phong cách Sổ Lưu Niệm Xanh Nhạt (Scrapbook Theme)
+   Thiết kế theo DESIGN_SPEC.md cho Web Quản Lý Thu Chi
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Biến hệ thống (Design Tokens & DaisyUI 5 Theme Palette)
+   -------------------------------------------------------------------------- */
+:root,
+[data-theme="scrapbook"],
+[data-theme="light"],
+html {
+  /* Bộ font Google Fonts (Hỗ trợ tiếng Việt đầy đủ) */
+  --font-title: 'Playfair Display', Georgia, serif;
+  --font-script: 'Dancing Script', cursive;
+  --font-body: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Bảng màu chuẩn từ DESIGN_SPEC.md */
+  --bg-start: #F4F8FE;
+  --bg-end: #E3EDFA;
+  --color-paper: #FFFFFF;
+  --color-shadow: rgba(47, 93, 168, 0.15);
+  --color-primary-blue: #4F86D9; /* Xanh chính: nút, băng keo, huy hiệu */
+  --color-title-blue: #2F5DA8;   /* Xanh tiêu đề */
+  --color-body-text: #24406F;    /* Chữ thân (tương phản >= 4.5:1) */
+  --color-income: #0F766E;       /* Thu */
+  --color-expense: #BE123C;      /* Chi */
+  --color-border: #BFD3EE;       /* Viền và đường kẻ */
+
+  /* Ánh xạ biến màu tương thích DaisyUI 5 */
+  --color-base-100: #FFFFFF;
+  --color-base-200: #F4F8FE;
+  --color-base-300: #BFD3EE;
+  --color-base-content: #24406F;
+  --color-primary: #4F86D9;
+  --color-primary-content: #FFFFFF;
+  --color-neutral: #2F5DA8;
+  --color-neutral-content: #FFFFFF;
+  --color-success: #0F766E;
+  --color-success-content: #FFFFFF;
+  --color-error: #BE123C;
+  --color-error-content: #FFFFFF;
+  --radius-box: 0.75rem;
+  --radius-field: 0.5rem;
+  --radius-selector: 0.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   2. Nền trang (Gradient + Chấm bi mờ ở góc) & Phông chữ thân trang
+   -------------------------------------------------------------------------- */
+html {
+  font-family: var(--font-body);
+  color: var(--color-body-text);
+  background-color: var(--bg-start);
+  overflow-x: clip; /* Triệt tiêu hoàn toàn cuộn ngang */
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-body-text);
+  min-height: 100vh;
+  /* Gradient nền từ #F4F8FE sang #E3EDFA */
+  background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+  background-attachment: fixed;
+  overflow-x: clip;
+  position: relative;
+}
+
+/* Họa tiết chấm bi mờ ở góc trên bên phải */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 280px;
+  background-image: radial-gradient(circle, rgba(79, 134, 217, 0.22) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+  mask-image: radial-gradient(circle at top right, black 25%, transparent 75%);
+  -webkit-mask-image: radial-gradient(circle at top right, black 25%, transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Họa tiết chấm bi mờ ở góc dưới bên trái */
+body::after {
+  content: "";
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 240px;
+  height: 240px;
+  background-image: radial-gradient(circle, rgba(79, 134, 217, 0.18) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+  mask-image: radial-gradient(circle at bottom left, black 25%, transparent 75%);
+  -webkit-mask-image: radial-gradient(circle at bottom left, black 25%, transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* --------------------------------------------------------------------------
+   3. Các lớp dùng chung phong cách Scrapbook (Ngắn gọn theo đặc tả)
+   -------------------------------------------------------------------------- */
+
+/* .paper: Giấy trắng, viền xanh nhạt, bóng đổ nhẹ */
+.paper {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 14px var(--color-shadow);
+  border-radius: 0.75rem;
+}
+
+/* .polaroid: Khung trắng viền dày, đáy dày hơn, nghiêng nhẹ */
+.polaroid {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border);
+  padding: 6px 6px 14px 6px;
+  box-shadow: 0 6px 16px var(--color-shadow);
+  border-radius: 4px;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+/* .polaroid-card: Khung Polaroid lớn cho thẻ tổng quan */
+.polaroid-card {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 6px 18px var(--color-shadow);
+  border-radius: 0.5rem;
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.polaroid-card:hover {
+  box-shadow: 0 10px 24px rgba(47, 93, 168, 0.22);
+}
+
+/* Vùng khung ảnh bên trong Polaroid */
+.polaroid-inner {
+  background-color: #F8FAFD;
+  border: 1px solid rgba(191, 211, 238, 0.7);
+  border-radius: 0.375rem;
+}
+
+/* Góc nghiêng cho 3 thẻ Polaroid (màn hình di động < 768px đứng thẳng không tràn, desktop nghiêng nhẹ) */
+.polaroid-tilt-left {
+  transform: rotate(0deg);
+}
+.polaroid-tilt-center {
+  transform: rotate(0deg);
+}
+.polaroid-tilt-right {
+  transform: rotate(0deg);
+}
+
+@media (min-width: 768px) {
+  .polaroid-tilt-left {
+    transform: rotate(-1.5deg);
+  }
+  .polaroid-tilt-left:hover {
+    transform: rotate(0deg) scale(1.01);
+  }
+  .polaroid-tilt-center {
+    transform: rotate(1deg);
+  }
+  .polaroid-tilt-center:hover {
+    transform: rotate(0deg) scale(1.01);
+  }
+  .polaroid-tilt-right {
+    transform: rotate(-1deg);
+  }
+  .polaroid-tilt-right:hover {
+    transform: rotate(0deg) scale(1.01);
+  }
+}
+
+/* .tape: Băng keo dải xanh kẻ ca-rô nghiêng */
+.tape {
+  position: absolute;
+  width: 68px;
+  height: 20px;
+  background-color: rgba(227, 237, 250, 0.85);
+  background-image:
+    repeating-linear-gradient(45deg, rgba(79, 134, 217, 0.35) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(-45deg, rgba(79, 134, 217, 0.35) 0 6px, transparent 6px 12px);
+  box-shadow: 0 1px 3px rgba(47, 93, 168, 0.2);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Định vị băng keo cho từng thẻ tổng quan */
+.tape-tilt-left {
+  top: -10px;
+  left: 20px;
+  transform: rotate(-3deg);
+}
+
+.tape-tilt-center {
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(2deg);
+}
+
+.tape-tilt-right {
+  top: -10px;
+  right: 20px;
+  transform: rotate(-2.5deg);
+}
+
+/* .bookmark-tag: Nhãn nhỏ kiểu bookmark có sao ở góc thẻ theo DESIGN_SPEC */
+.bookmark-tag {
+  position: absolute;
+  top: 0;
+  right: 14px;
+  width: 20px;
+  height: 30px;
+  background-color: var(--color-primary-blue);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 4px;
+  box-shadow: 0 2px 4px rgba(47, 93, 168, 0.2);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.bookmark-tag svg {
+  width: 10px;
+  height: 10px;
+  color: #FFFFFF;
+}
+
+/* Màu số tiền đạt chuẩn tương phản WCAG AA >= 4.5:1 trên nền trắng/nhạt */
+.text-income {
+  color: var(--color-income); /* #0F766E, tương phản ~5.5:1 */
+}
+
+.text-expense {
+  color: var(--color-expense); /* #BE123C, tương phản ~6.3:1 */
+}
+
+.text-balance-positive {
+  color: var(--color-title-blue); /* #2F5DA8, tương phản ~6.6:1 */
+}
+
+.text-balance-negative {
+  color: var(--color-expense); /* #BE123C, tương phản ~6.3:1 */
+}
+
+/* .clip: Khung định vị cho kẹp giấy SVG ở góc */
+.clip {
+  display: inline-block;
+  width: 22px;
+  height: 40px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* .stamp: Khung tem viền răng cưa / nét đứt */
+.stamp {
+  background-color: #FFFFFF;
+  border: 2px dashed var(--color-border);
+  box-shadow: 0 4px 14px var(--color-shadow);
+  border-radius: 6px;
+  position: relative;
+}
+
+/* .sparkle: Sao 4 cánh xanh làm điểm nhấn */
+.sparkle {
+  display: inline-block;
+  color: var(--color-primary-blue);
+  pointer-events: none;
+  vertical-align: middle;
+}
+
+/* --------------------------------------------------------------------------
+   4. Tiện ích phông chữ và trang trí bổ trợ
+   -------------------------------------------------------------------------- */
+.font-title {
+  font-family: var(--font-title);
+  letter-spacing: 0.04em;
+}
+
+.font-script {
+  font-family: var(--font-script);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Chữ xoay dọc ở mép phải trang (chỉ hiển thị màn >= lg) */
+.side-text-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.28em;
+  font-family: var(--font-title);
+  pointer-events: none;
+  user-select: none;
+  text-transform: uppercase;
+  display: block;
+  line-height: 1;
+  margin: 0 auto;
+}
+
+#side-vertical-decor {
+  position: fixed;
+  right: 0.875rem !important; /* 14px từ mép phải: nằm cân đối trong lề, không chạm thẻ */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  pointer-events: none;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+  width: 1.25rem;
+}
+
+@media (max-width: 1023px) {
+  #side-vertical-decor {
+    display: none !important;
+  }
+}
+
+/* Khoảng đệm 40px trên màn hình 1024px-1199px để chữ xoay dọc không đè lên thẻ */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  main.container {
+    padding-right: 2.5rem !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  #side-vertical-decor {
+    right: 1.5rem !important; /* 24px trên màn hình lớn rộng rãi */
+  }
+}
+
+/* Tinh chỉnh nút bấm hài hòa với phong cách */
+.btn-primary {
+  background-color: var(--color-primary-blue);
+  border-color: var(--color-primary-blue);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(79, 134, 217, 0.35);
+}
+
+.btn-primary:hover {
+  background-color: #3b74c8;
+  border-color: #3b74c8;
+}
+
+.btn-outline {
+  border-color: var(--color-border);
+  color: var(--color-title-blue);
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-primary-blue);
+  border-color: var(--color-primary-blue);
+  color: #FFFFFF;
+}
+
+/* Đảm bảo vùng chạm >= 40px cho các nút trên header */
+#btn-add-transaction,
+#btn-import-data,
+#btn-export-data {
+  min-height: 40px;
+  height: 40px;
+}
+
+/* Focus bàn phím thấy rõ theo DESIGN_SPEC.md (WCAG 2.4.7 Focus Visible) */
+:focus-visible {
+  outline: 2px solid var(--color-primary-blue) !important;
+  outline-offset: 2px !important;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-primary-blue) !important;
+  outline-offset: 2px !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. Thanh lọc phong cách Scrapbook (Tờ giấy trắng có nhãn dán theo DESIGN_SPEC)
+   -------------------------------------------------------------------------- */
+
+/* .filter-paper: Tờ giấy trắng với viền xanh nhạt và bóng đổ nhẹ */
+.filter-paper {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 14px var(--color-shadow);
+  border-radius: 0.75rem;
+  position: relative;
+}
+
+/* .filter-sticker: Nhãn dán trang trí góc trên thanh lọc theo DESIGN_SPEC.md */
+.filter-sticker {
+  position: absolute;
+  top: -11px;
+  left: 16px;
+  background-color: var(--color-primary-blue);
+  color: #FFFFFF;
+  padding: 2px 10px 3px 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(47, 93, 168, 0.28);
+  transform: rotate(-1.5deg);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  pointer-events: none;
+  z-index: 10;
+  user-select: none;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Ô nhập và ô chọn trên thanh lọc: chiều cao >= 40px đạt chuẩn touch target di động */
+#filter-container .input,
+#filter-container .select {
+  min-height: 40px;
+  height: 40px;
+  font-size: 0.875rem;
+  background-color: #F8FAFD;
+  border-color: var(--color-border);
+  color: var(--color-body-text);
+  border-radius: 0.5rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+#filter-container .input:focus,
+#filter-container .select:focus {
+  background-color: #FFFFFF;
+  border-color: var(--color-primary-blue);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(79, 134, 217, 0.2);
+}
+
+/* Nút Xóa lọc dạng viên thuốc (pill) với vùng chạm chuẩn >= 40px */
+#btn-reset-filter {
+  min-height: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  border-color: var(--color-border);
+  color: var(--color-title-blue);
+  background-color: #FFFFFF;
+  font-family: var(--font-body);
+}
+
+#btn-reset-filter:hover {
+  background-color: var(--color-primary-blue);
+  border-color: var(--color-primary-blue);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(79, 134, 217, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   6. Danh sách giao dịch & Trạng thái rỗng (DESIGN_SPEC.md & UX_REVIEW.md)
+   -------------------------------------------------------------------------- */
+
+/* Tờ giấy trắng bao quanh bảng giao dịch */
+.transaction-paper {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 14px var(--color-shadow);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+/* Bảng danh sách giao dịch kiểu Scrapbook */
+.transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.transaction-table thead tr {
+  border-bottom: 1.5px solid var(--color-border);
+  background-color: #F8FAFD;
+}
+
+.transaction-table thead th {
+  color: var(--color-title-blue);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.875rem 1rem;
+}
+
+/* Dòng cách nhau bằng đường chấm xanh theo DESIGN_SPEC.md */
+.transaction-table tbody tr {
+  border-bottom: 1.5px dotted var(--color-border);
+  transition: background-color 0.15s ease;
+}
+
+.transaction-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.transaction-table tbody tr:hover {
+  background-color: rgba(244, 248, 254, 0.75);
+}
+
+.transaction-table tbody td {
+  padding: 0.875rem 1rem;
+  color: var(--color-body-text);
+  vertical-align: middle;
+}
+
+/* Thẻ giao dịch cho mobile & tablet (< 1024px) */
+.transaction-card {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px var(--color-shadow);
+  border-radius: 0.625rem;
+  padding: 0.875rem 1rem;
+  transition: box-shadow 0.15s ease;
+}
+
+.transaction-card:hover {
+  box-shadow: 0 4px 12px var(--color-shadow);
+}
+
+/* Đường chấm xanh phân cách phần ghi chú trên thẻ mobile */
+.transaction-card-divider {
+  border-top: 1.5px dotted var(--color-border);
+}
+
+/* Giới hạn ghi chú tối đa 2 dòng kèm dấu chấm lửng (mục 06) */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* Khung tem răng cưa cho trạng thái rỗng theo DESIGN_SPEC.md */
+.stamp-empty-box {
+  background-color: var(--color-paper);
+  border: 2px dashed var(--color-border);
+  box-shadow: 0 4px 16px var(--color-shadow);
+  border-radius: 0.75rem;
+  position: relative;
+}
+
+.stamp-empty-box::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(191, 211, 238, 0.6);
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   7. Hộp thoại phong cách Scrapbook (Modals: Giấy trắng, kẹp giấy, băng keo, bo góc)
+   -------------------------------------------------------------------------- */
+
+/* Tờ giấy trắng bo góc cho hộp thoại */
+.modal-paper {
+  background-color: #FFFFFF !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: 0 10px 30px var(--color-shadow) !important;
+  border-radius: 0.875rem !important;
+  position: relative;
+  overflow: visible;
+}
+
+/* Kẹp giấy SVG đơn giản ở góc trên bên trái modal theo DESIGN_SPEC.md */
+.modal-clip {
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  width: 20px;
+  height: 38px;
+  color: var(--color-primary-blue);
+  filter: drop-shadow(0 2px 3px rgba(47, 93, 168, 0.22));
+  pointer-events: none;
+  z-index: 20;
+  transform: rotate(-3deg);
+}
+
+/* Băng keo dán mép trên modal (kẻ ca-rô xanh) theo DESIGN_SPEC.md */
+.modal-tape {
+  position: absolute;
+  top: -9px;
+  right: 58px;
+  width: 60px;
+  height: 18px;
+  transform: rotate(2deg);
+  pointer-events: none;
+  z-index: 15;
+}
+
+/* Nút đóng modal touch target >= 40px theo UX_REVIEW.md mục 10 */
+.modal-btn-close {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Màu xanh tiêu đề dạng utility class */
+.text-title-blue {
+  color: var(--color-title-blue);
+}
+
+/* Cho phép cuộn khi màn hình quá thấp (ví dụ điện thoại xoay ngang) */
+@media (max-height: 520px) {
+  .modal-paper {
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8. Thông báo Toast phong cách Nhãn dán xanh (DESIGN_SPEC.md & mục 05)
+   -------------------------------------------------------------------------- */
+
+/* Toast container: Mobile ở dưới giữa màn hình, tablet/desktop ở trên phải không che navbar */
+#toast-container.toast,
+#toast-container {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  --toast-x: 0 !important;
+  --toast-y: 0 !important;
+  translate: none !important;
+  transform: none !important;
+}
+
+@media (max-width: 639px) {
+  #toast-container.toast,
+  #toast-container {
+    bottom: 1.25rem !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    top: auto !important;
+    width: auto !important;
+    max-width: calc(100vw - 2rem) !important;
+    padding: 0 !important;
+    align-items: center !important;
+    translate: none !important;
+    transform: none !important;
+  }
+}
+
+@media (min-width: 640px) {
+  #toast-container.toast,
+  #toast-container {
+    top: 4.75rem !important; /* Dưới navbar (~4rem) để không che navbar và nút thao tác */
+    right: 1.25rem !important;
+    left: auto !important;
+    bottom: auto !important;
+    max-width: 24rem !important;
+    width: auto !important;
+    padding: 0 !important;
+    align-items: flex-end !important;
+    translate: none !important;
+    transform: none !important;
+  }
+}
+
+/* .toast-sticker: Nhãn dán xanh phong cách Scrapbook cho thông báo Toast */
+.toast-sticker {
+  background: linear-gradient(135deg, #4F86D9 0%, #3668B8 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 6px 20px rgba(47, 93, 168, 0.35);
+  border-radius: 0.625rem;
+  position: relative;
+  pointer-events: auto;
+  width: 100%;
+  max-width: 24rem;
+  margin: 0 auto;
+  transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Băng keo dán nhỏ trang trí góc nhãn dán */
+.toast-sticker::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  width: 32px;
+  height: 12px;
+  background-color: rgba(227, 237, 250, 0.75);
+  background-image: repeating-linear-gradient(45deg, rgba(79, 134, 217, 0.3) 0 4px, transparent 4px 8px);
+  box-shadow: 0 1px 2px rgba(47, 93, 168, 0.15);
+  transform: rotate(-2.5deg);
+  pointer-events: none;
+  border-radius: 1px;
+}
+
+.toast-sticker-error {
+  border-color: rgba(254, 205, 211, 0.7);
+}
+
+/* Tôn trọng prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .polaroid-tilt-left,
+  .polaroid-tilt-center,
+  .polaroid-tilt-right,
+  .polaroid-card,
+  .filter-sticker,
+  .modal-clip,
+  .modal-tape,
+  .toast-sticker::before {
+    transform: none !important;
+  }
+}

@@ -1,47 +1,88 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="light">
+<html lang="vi" data-theme="scrapbook">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý thu chi</title>
+
+  <!-- Google Fonts: Playfair Display, Dancing Script, Be Vietnam Pro (hỗ trợ tiếng Việt đầy đủ) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Dancing+Script:wght@400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    rel="stylesheet">
+
   <!-- daisyUI CDN (v5) -->
   <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
   <!-- Tailwind CSS CDN (v4) -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- Scrapbook Theme & Shared Styles -->
+  <link rel="stylesheet" href="css/scrapbook.css" />
 </head>
 
-<body class="min-h-screen bg-base-200 text-base-content flex flex-col">
-  <!-- Thanh điều hướng chính -->
-  <header class="bg-base-100 shadow-sm sticky top-0 z-30">
+<body class="min-h-screen text-base-content flex flex-col relative">
+  <!-- Thanh điều hướng chính (Header theo DESIGN_SPEC.md) -->
+  <header class="bg-white/90 backdrop-blur-md border-b border-[#BFD3EE] shadow-xs sticky top-0 z-30">
     <div class="container mx-auto max-w-5xl">
-      <nav class="navbar px-2 sm:px-4" aria-label="Thanh điều hướng chính">
-        <div class="navbar-start">
-          <h1 class="text-base sm:text-xl font-bold tracking-tight truncate">Quản lý thu chi</h1>
+      <nav class="navbar px-2 sm:px-4 min-h-[4rem]" aria-label="Thanh điều hướng chính">
+        <div class="navbar-start flex items-center gap-2 sm:gap-3 min-w-0">
+          <!-- Polaroid nhỏ hiển thị images/avatar.jpg, ẩn khi ảnh không tải được (sự kiện error) -->
+          <div id="header-avatar" class="shrink-0">
+            <div class="polaroid rotate-[-2deg] p-1 pb-2 shadow-xs bg-white relative">
+              <img src="images/avatar.jpg" alt="Avatar" class="w-8 h-8 sm:w-9 sm:h-9 object-cover rounded-xs block"
+                onerror="this.onerror=null; var p=document.getElementById('header-avatar'); if(p) p.style.display='none';" />
+              <!-- Sao 4 cánh nhỏ trang trí góc avatar Polaroid -->
+              <svg class="w-2.5 h-2.5 text-[#4F86D9] absolute -top-1 -right-1 sparkle pointer-events-none"
+                viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+              </svg>
+            </div>
+          </div>
+          <!-- Tiêu đề và gạch mảnh bên dưới kèm một sao 4 cánh theo DESIGN_SPEC -->
+          <div class="flex flex-col min-w-0">
+            <h1
+              class="font-title text-sm sm:text-lg lg:text-xl font-bold uppercase tracking-wider text-[#2F5DA8] truncate">
+              QUẢN LÝ THU CHI
+            </h1>
+            <div class="flex items-center gap-1.5 mt-0.5 pointer-events-none select-none" aria-hidden="true">
+              <span class="h-[1px] w-6 sm:w-12 bg-[#BFD3EE]"></span>
+              <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#4F86D9] shrink-0 sparkle pointer-events-none" viewBox="0 0 24 24"
+                fill="currentColor" aria-hidden="true">
+                <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+              </svg>
+              <span class="h-[1px] w-4 sm:w-8 bg-[#BFD3EE]"></span>
+            </div>
+          </div>
         </div>
-        <div class="navbar-end gap-1.5 sm:gap-2">
-          <button type="button" id="btn-add-transaction" class="btn btn-primary btn-sm px-2.5 sm:px-3"
+        <div class="navbar-end gap-1.5 sm:gap-2 shrink-0">
+          <button type="button" id="btn-add-transaction" class="btn btn-primary btn-sm px-2.5 sm:px-3 shadow-xs gap-1 min-h-[40px] h-10"
             aria-label="Thêm giao dịch">
-            <span class="sm:hidden">Thêm</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 pointer-events-none" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span class="sm:hidden text-xs">Thêm</span>
             <span class="hidden sm:inline">Thêm giao dịch</span>
           </button>
           <div id="backup-actions" class="flex items-center gap-1.5 sm:gap-2">
             <input type="file" id="input-import-file" accept=".json,application/json" class="hidden"
               aria-label="Chọn file JSON để nhập dữ liệu" />
-            <button type="button" id="btn-import-data" class="btn btn-outline btn-sm px-2 sm:px-3 gap-1"
+            <button type="button" id="btn-import-data" class="btn btn-outline btn-sm px-2 sm:px-3 gap-1 min-h-[40px] h-10 min-w-[40px]"
               title="Nhập dữ liệu" aria-label="Nhập dữ liệu">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 pointer-events-none" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round"
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l4-4m0 0l4 4m-4-4v12" />
               </svg>
               <span class="hidden sm:inline">Nhập dữ liệu</span>
             </button>
-            <button type="button" id="btn-export-data" class="btn btn-outline btn-sm px-2 sm:px-3 gap-1"
+            <button type="button" id="btn-export-data" class="btn btn-outline btn-sm px-2 sm:px-3 gap-1 min-h-[40px] h-10 min-w-[40px]"
               title="Xuất dữ liệu" aria-label="Xuất dữ liệu">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 pointer-events-none" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round"
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               <span class="hidden sm:inline">Xuất dữ liệu</span>
@@ -55,27 +96,82 @@
   <!-- Vùng nội dung chính -->
   <main class="container mx-auto max-w-5xl p-4 flex-1">
     <section id="main-content" class="w-full space-y-6">
-      <!-- 1. Phần tổng quan: 3 thẻ thống kê DaisyUI -->
-      <section id="summary-section" aria-label="Tổng quan thu chi">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="summary-cards">
-          <div class="stats shadow-sm bg-base-100 border border-base-300 w-full">
-            <div class="stat">
-              <div class="stat-title text-base-content/70">Tổng thu</div>
-              <div class="stat-value text-emerald-700 text-2xl lg:text-3xl" id="summary-income">0 ₫</div>
+      <!-- 1. Phần tổng quan: 3 thẻ Polaroid theo DESIGN_SPEC.md -->
+      <section id="summary-section" aria-label="Tổng quan thu chi" class="relative pt-2.5 pb-1">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-5 lg:gap-6 items-stretch" id="summary-cards">
+
+          <!-- Thẻ 1: Tổng thu (Polaroid nghiêng nhẹ sang trái trên desktop, đứng thẳng trên mobile) -->
+          <div class="polaroid-card polaroid-tilt-left p-3.5 sm:p-4 pb-6 sm:pb-7 transition-all duration-200">
+            <!-- Băng keo dán mép trên -->
+            <div class="tape tape-tilt-left pointer-events-none" aria-hidden="true"></div>
+            <!-- Nhãn nhỏ kiểu bookmark có sao ở góc thẻ -->
+            <div class="bookmark-tag pointer-events-none" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="pointer-events-none">
+                <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+              </svg>
             </div>
-          </div>
-          <div class="stats shadow-sm bg-base-100 border border-base-300 w-full">
-            <div class="stat">
-              <div class="stat-title text-base-content/70">Tổng chi</div>
-              <div class="stat-value text-rose-700 text-2xl lg:text-3xl" id="summary-expense">0 ₫</div>
+            <!-- Khung ảnh bên trong chứa thông tin -->
+            <div class="polaroid-inner p-3.5 sm:p-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-[#24406F]">Tổng thu</span>
+                <span class="w-2 h-2 rounded-full bg-[#0F766E]/70 pointer-events-none" aria-hidden="true"></span>
+              </div>
+              <div class="text-2xl lg:text-3xl font-bold tracking-tight text-income font-body mt-2.5"
+                id="summary-income">0 ₫</div>
             </div>
+            <!-- Đáy Polaroid dày hơn có chú thích chữ viết tay trang trí -->
+            <div class="font-script text-sm sm:text-base text-[#2F5DA8] opacity-80 mt-2 text-right pr-1 pointer-events-none select-none"
+              aria-hidden="true">tiền vào ~</div>
           </div>
-          <div class="stats shadow-sm bg-base-100 border border-base-300 w-full">
-            <div class="stat">
-              <div class="stat-title text-base-content/70">Số dư</div>
-              <div class="stat-value text-primary text-2xl lg:text-3xl" id="summary-balance">0 ₫</div>
+
+          <!-- Thẻ 2: Tổng chi (Polaroid nghiêng nhẹ sang phải trên desktop, đứng thẳng trên mobile) -->
+          <div class="polaroid-card polaroid-tilt-center p-3.5 sm:p-4 pb-6 sm:pb-7 transition-all duration-200">
+            <!-- Băng keo dán mép trên -->
+            <div class="tape tape-tilt-center pointer-events-none" aria-hidden="true"></div>
+            <!-- Nhãn nhỏ kiểu bookmark có sao ở góc thẻ -->
+            <div class="bookmark-tag pointer-events-none" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="pointer-events-none">
+                <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+              </svg>
             </div>
+            <!-- Khung ảnh bên trong chứa thông tin -->
+            <div class="polaroid-inner p-3.5 sm:p-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-[#24406F]">Tổng chi</span>
+                <span class="w-2 h-2 rounded-full bg-[#BE123C]/70 pointer-events-none" aria-hidden="true"></span>
+              </div>
+              <div class="text-2xl lg:text-3xl font-bold tracking-tight text-expense font-body mt-2.5"
+                id="summary-expense">0 ₫</div>
+            </div>
+            <!-- Đáy Polaroid dày hơn có chú thích chữ viết tay trang trí -->
+            <div class="font-script text-sm sm:text-base text-[#2F5DA8] opacity-80 mt-2 text-right pr-1 pointer-events-none select-none"
+              aria-hidden="true">tiền ra ~</div>
           </div>
+
+          <!-- Thẻ 3: Số dư (Polaroid nghiêng nhẹ sang trái trên desktop, đứng thẳng trên mobile) -->
+          <div class="polaroid-card polaroid-tilt-right p-3.5 sm:p-4 pb-6 sm:pb-7 transition-all duration-200">
+            <!-- Băng keo dán mép trên -->
+            <div class="tape tape-tilt-right pointer-events-none" aria-hidden="true"></div>
+            <!-- Nhãn nhỏ kiểu bookmark có sao ở góc thẻ -->
+            <div class="bookmark-tag pointer-events-none" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="pointer-events-none">
+                <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+              </svg>
+            </div>
+            <!-- Khung ảnh bên trong chứa thông tin -->
+            <div class="polaroid-inner p-3.5 sm:p-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-[#24406F]">Số dư</span>
+                <span class="w-2 h-2 rounded-full bg-[#2F5DA8]/70 pointer-events-none" aria-hidden="true"></span>
+              </div>
+              <div class="text-2xl lg:text-3xl font-bold tracking-tight text-balance-positive font-body mt-2.5"
+                id="summary-balance">0 ₫</div>
+            </div>
+            <!-- Đáy Polaroid dày hơn có chú thích chữ viết tay trang trí -->
+            <div class="font-script text-sm sm:text-base text-[#2F5DA8] opacity-80 mt-2 text-right pr-1 pointer-events-none select-none"
+              aria-hidden="true">tích lũy ~</div>
+          </div>
+
         </div>
       </section>
 
@@ -86,25 +182,33 @@
             <div class="flex items-center justify-between mb-4">
               <h2 class="card-title text-lg font-bold">Danh sách giao dịch</h2>
             </div>
-            <!-- Vùng thanh lọc phía trên danh sách -->
-            <div id="filter-container"
-              class="bg-base-200/50 p-3 sm:p-4 rounded-box border border-base-300/70 mb-4 sm:mb-6"
+            <!-- Vùng thanh lọc phía trên danh sách: Tờ giấy trắng có nhãn dán theo DESIGN_SPEC.md -->
+            <div id="filter-container" class="filter-paper p-4 sm:p-5 pt-5 sm:pt-5 mb-5 sm:mb-6"
               aria-label="Bộ lọc giao dịch">
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
+              <!-- Nhãn dán trang trí phong cách Scrapbook theo DESIGN_SPEC.md -->
+              <div class="filter-sticker pointer-events-none select-none" aria-hidden="true">
+                <svg class="w-3 h-3 text-white shrink-0 sparkle pointer-events-none" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+                </svg>
+                <span class="font-title text-[11px] sm:text-xs font-bold tracking-wider uppercase text-white pointer-events-none">Bộ
+                  lọc</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3.5 sm:gap-4 items-end">
                 <!-- 1. Chọn tháng -->
-                <div class="form-control w-full sm:col-span-1 lg:col-span-3">
+                <div class="form-control w-full sm:col-span-1 lg:col-span-2">
                   <label class="label py-1" for="filter-month">
-                    <span class="label-text text-xs font-semibold text-base-content/70">Tháng</span>
+                    <span class="label-text text-xs font-semibold text-[#24406F]">Tháng</span>
                   </label>
-                  <input type="month" id="filter-month" class="input input-bordered input-sm w-full bg-base-100" />
+                  <input type="month" id="filter-month" class="input input-bordered w-full h-10 min-h-[40px] text-sm" />
                 </div>
 
                 <!-- 2. Chọn loại -->
                 <div class="form-control w-full sm:col-span-1 lg:col-span-2">
                   <label class="label py-1" for="filter-type">
-                    <span class="label-text text-xs font-semibold text-base-content/70">Loại</span>
+                    <span class="label-text text-xs font-semibold text-[#24406F]">Loại</span>
                   </label>
-                  <select id="filter-type" class="select select-bordered select-sm w-full bg-base-100">
+                  <select id="filter-type" class="select select-bordered w-full h-10 min-h-[40px] text-sm">
                     <option value="all">Tất cả loại</option>
                     <option value="income">Thu nhập</option>
                     <option value="expense">Chi phí</option>
@@ -114,9 +218,9 @@
                 <!-- 3. Chọn danh mục -->
                 <div class="form-control w-full sm:col-span-1 lg:col-span-3">
                   <label class="label py-1" for="filter-category">
-                    <span class="label-text text-xs font-semibold text-base-content/70">Danh mục</span>
+                    <span class="label-text text-xs font-semibold text-[#24406F]">Danh mục</span>
                   </label>
-                  <select id="filter-category" class="select select-bordered select-sm w-full bg-base-100">
+                  <select id="filter-category" class="select select-bordered w-full h-10 min-h-[40px] text-sm">
                     <option value="all">Tất cả danh mục</option>
                   </select>
                 </div>
@@ -124,16 +228,22 @@
                 <!-- 4. Tìm trong ghi chú -->
                 <div class="form-control w-full sm:col-span-1 lg:col-span-3">
                   <label class="label py-1" for="filter-keyword">
-                    <span class="label-text text-xs font-semibold text-base-content/70">Tìm trong ghi chú</span>
+                    <span class="label-text text-xs font-semibold text-[#24406F]">Tìm trong ghi chú</span>
                   </label>
                   <input type="text" id="filter-keyword" placeholder="Nhập từ khóa tìm..."
-                    class="input input-bordered input-sm w-full bg-base-100" />
+                    class="input input-bordered w-full h-10 min-h-[40px] text-sm" />
                 </div>
 
-                <!-- 5. Nút Xóa lọc -->
-                <div class="form-control w-full sm:col-span-2 lg:col-span-1 flex justify-end">
-                  <button type="button" id="btn-reset-filter" class="btn btn-sm btn-outline btn-neutral w-full">
-                    Xóa lọc
+                <!-- 5. Nút Xóa lọc: Dạng viên thuốc, độ rộng tự nhiên, căn phải ở tablet theo UX_REVIEW.md -->
+                <div class="form-control w-full sm:col-span-2 lg:col-span-2 flex justify-end">
+                  <button type="button" id="btn-reset-filter"
+                    class="btn btn-outline rounded-full text-xs font-semibold px-5 border-[#BFD3EE] text-[#2F5DA8] hover:bg-[#4F86D9] hover:border-[#4F86D9] hover:text-white transition-all shadow-xs gap-1.5 h-10 min-h-[40px] w-auto"
+                    aria-label="Xóa tất cả điều kiện lọc">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 shrink-0 pointer-events-none" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>Xóa lọc</span>
                   </button>
                 </div>
               </div>
@@ -148,8 +258,38 @@
     </section>
   </main>
 
+  <!-- Họa tiết sao 4 cánh trang trí nền (aria-hidden) -->
+  <div class="fixed top-24 left-6 pointer-events-none select-none z-0 hidden lg:block opacity-35" aria-hidden="true">
+    <svg class="w-3.5 h-3.5 text-[#4F86D9] sparkle pointer-events-none" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+    </svg>
+  </div>
+  <div class="fixed bottom-20 left-10 pointer-events-none select-none z-0 hidden lg:block opacity-30"
+    aria-hidden="true">
+    <svg class="w-3 h-3 text-[#4F86D9] sparkle pointer-events-none" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+    </svg>
+  </div>
+
+  <!-- Chữ xoay dọc ở mép phải trang (chỉ màn >= lg) theo DESIGN_SPEC.md -->
+  <aside id="side-vertical-decor"
+    class="hidden lg:flex flex-col items-center gap-2 fixed top-1/2 -translate-y-1/2 pointer-events-none select-none z-10"
+    aria-hidden="true">
+    <svg class="w-3 h-3 text-[#4F86D9]/40 sparkle shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor"
+      aria-hidden="true">
+      <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+    </svg>
+    <span class="side-text-vertical text-xs font-semibold tracking-widest text-[#2F5DA8]/35 font-title pointer-events-none">
+      THU CHI
+    </span>
+    <svg class="w-3 h-3 text-[#4F86D9]/40 sparkle shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor"
+      aria-hidden="true">
+      <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+    </svg>
+  </aside>
+
   <!-- Chân trang -->
-  <footer class="footer footer-center p-4 text-base-content/60 text-sm">
+  <footer class="footer footer-center p-4 text-[#24406F]/80 text-sm">
     <aside>
       <p>Author Huy</p>
     </aside>
